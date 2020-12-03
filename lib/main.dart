@@ -1,4 +1,9 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 void main() {
   runApp(MyApp());
@@ -9,21 +14,24 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
-    );
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          // This is the theme of your application.
+          //
+          // Try running your application with "flutter run". You'll see the
+          // application has a blue toolbar. Then, without quitting the app, try
+          // changing the primarySwatch below to Colors.green and then invoke
+          // "hot reload" (press "r" in the console where you ran "flutter run",
+          // or simply save your changes to "hot reload" in a Flutter IDE).
+          // Notice that the counter didn't reset back to zero; the application
+          // is not restarted.
+          primarySwatch: Colors.blue,
+        ),
+        initialRoute: '/',
+        routes: {
+          // When navigating to the "/" route, build the FirstScreen widget.
+          '/': (context) => MyHomePage(title: 'Flutter Demo Home Page'),
+        });
   }
 }
 
@@ -46,17 +54,63 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  WebViewController _controller;
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  Future<String> _getXsrfToken() async {
+    final String cookies =
+        await _controller.evaluateJavascript('document.cookie');
+    RegExp exp = new RegExp(r"XSRF-TOKEN=([a-zA-Z0-9]+)");
+
+    Iterable<Match> matches = exp.allMatches(cookies);
+    if (matches == null) {
+      print("No match");
+      return null;
+    } else {
+      final matchedText = matches.elementAt(0).group(1);
+      print("Token : " + matchedText);
+      return matchedText;
+    }
+  }
+
+  Future<String> _getToken() async {
+    String html = await _controller.evaluateJavascript(
+        "window.document.getElementsByTagName('html')[0].outerHTML;");
+    RegExp exp = new RegExp(r"token\s=\s'([a-zA-Z0-9]+)'");
+
+    Iterable<Match> matches = exp.allMatches(html);
+    if (matches == null) {
+      print("No match");
+      return null;
+    } else {
+      final matchedText = matches.elementAt(0).group(1);
+      print("Token : " + matchedText);
+      return matchedText;
+    }
+  }
+
+  void _test() async {
+    var data = ConvertMp3RequestPayload(
+        extension: "mp3", url: "https://www.youtube.com/watch?v=hhuvQGoGNWw");
+    Map<String, String> headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'X-Token': await _getToken(),
+      'X-XSFR-Token': await _getXsrfToken()
+    };
+    var dataJson = jsonEncode(data);
+    print("Json: " + dataJson);
+    var result = await http.post("https://mp3-youtube.download/download/start",
+        headers: headers,
+        body: jsonEncode(data),
+        encoding: Encoding.getByName("utf-8"));
+    print(result.body);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Enable hybrid composition.
+    if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
   }
 
   @override
@@ -68,47 +122,41 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //c'est qui le bg qui ç
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
+      body: Column(
+        children: [
+          Container(
+            height: 0,
+            width: 0,
+            child: WebView(
+              initialUrl:
+                  'https://mp3-youtube.download/fr/your-audio-converter',
+              javascriptMode: JavascriptMode.unrestricted,
+              onWebViewCreated: (controller) => _controller = controller,
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
+          ),
+          FlatButton(
+            child: Text("Hi"),
+            onPressed: () {
+              _test();
+            },
+          )
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+}
+
+class ConvertMp3RequestPayload {
+  final String url;
+  final String extension;
+
+  ConvertMp3RequestPayload({this.url, this.extension});
+
+  ConvertMp3RequestPayload.fromJson(Map<String, dynamic> json)
+      : url = json['url'],
+        extension = json['extension'];
+  Map<String, dynamic> toJson() => {
+        'url': url,
+        'extension': extension,
+      };
 }
