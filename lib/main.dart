@@ -1,15 +1,13 @@
-import 'dart:convert';
 import 'dart:io';
 
+import 'package:convertyoutubeplayer/Services/http_service.dart';
 import 'package:convertyoutubeplayer/Services/token_service.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-import 'config.dart';
+import 'requestPayloads/convertMp3/startConvertPayloadRequest.dart';
 
 void main() {
-  Config.initServices();
   runApp(MyApp());
 }
 
@@ -39,25 +37,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  TokenService _tokenService = Config.getIt<TokenService>();
-
-  void _test() async {
-    var data = ConvertMp3RequestPayload(
-        extension: "mp3", url: "https://www.youtube.com/watch?v=hhuvQGoGNWw");
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'X-Token': _tokenService.token,
-      'X-XSFR-Token': _tokenService.xsrfToken
-    };
-    var dataJson = jsonEncode(data);
-    print("Json: " + dataJson);
-    var result = await http.post("https://mp3-youtube.download/download/start",
-        headers: headers,
-        body: jsonEncode(data),
-        encoding: Encoding.getByName("utf-8"));
-    print(result.body);
-  }
+  var _startRequest = StartConvertPayloadRequest(
+      "https://www.youtube.com/watch?v=9vMLTcftlyI", "mp3");
 
   @override
   void initState() {
@@ -85,33 +66,24 @@ class _LoginPageState extends State<LoginPage> {
                   'https://mp3-youtube.download/fr/your-audio-converter',
               javascriptMode: JavascriptMode.unrestricted,
               onWebViewCreated: (controller) {
-                _tokenService.init(controller);
+                TokenService.instance.setController(controller);
+              },
+              onPageFinished: (url) {
+                TokenService.instance.init();
               },
             ),
           ),
           FlatButton(
-            child: Text("Cheng BG = Romain"),
-            onPressed: () {
-              _test();
+            child: Text("Livreur colis KDO"),
+            onPressed: () async {
+              //_test();
+              var result =
+                  await HttpService.instance.post(_startRequest.request);
+              print("Request(" + result.uuid + "): status " + result.status);
             },
           )
         ],
       ),
     );
   }
-}
-
-class ConvertMp3RequestPayload {
-  final String url;
-  final String extension;
-
-  ConvertMp3RequestPayload({this.url, this.extension});
-
-  ConvertMp3RequestPayload.fromJson(Map<String, dynamic> json)
-      : url = json['url'],
-        extension = json['extension'];
-  Map<String, dynamic> toJson() => {
-        'url': url,
-        'extension': extension,
-      };
 }

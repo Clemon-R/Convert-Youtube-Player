@@ -3,19 +3,28 @@ import 'package:webview_flutter/webview_flutter.dart';
 class TokenService {
   static const String TAG = "TokenService";
 
+  static TokenService _instance = TokenService();
+  static TokenService get instance => _instance;
+
   WebViewController _webViewController;
   String _token;
   String _xsrfToken;
+  bool _initiated = false;
 
   WebViewController get webViewController => this._webViewController;
   String get token => this._token;
   String get xsrfToken => this._xsrfToken;
+  bool get initiated => this._initiated;
 
-  Future<void> init(WebViewController controller) async {
-    print("$TAG: Init...");
+  void setController(WebViewController controller) {
     this._webViewController = controller;
+  }
+
+  Future<void> init() async {
+    print("$TAG: Init...");
     this._token = await this._getToken();
     this._xsrfToken = await this._getXsrfToken();
+    this._initiated = true;
     print("$TAG: Initied");
   }
 
