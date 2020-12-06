@@ -1,7 +1,11 @@
 import 'dart:io';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:convertyoutubeplayer/Services/http_service.dart';
 import 'package:convertyoutubeplayer/Services/token_service.dart';
+import 'package:convertyoutubeplayer/requestPayloads/convertMp3/checkVideoStatusPayloadRequest.dart';
+import 'package:convertyoutubeplayer/requestPayloads/requestDownload.dart';
+import 'package:convertyoutubeplayer/urls.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -37,8 +41,10 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  var _startRequest = StartConvertPayloadRequest(
-      "https://www.youtube.com/watch?v=9vMLTcftlyI", "mp3");
+  CheckConvertPayloadRequest _lastResult;
+  AudioPlayer audioPlayer = AudioPlayer();
+  var _urlTxt = "https://www.youtube.com/watch?v=9vMLTcftlyI";
+  var _msg = "";
 
   @override
   void initState() {
@@ -47,14 +53,69 @@ class _LoginPageState extends State<LoginPage> {
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
   }
 
+  void _startDownload() {
+    if (!TokenService.instance.initiated) return;
+    var tmp = StartConvertPayloadRequest(url: this._urlTxt, extension: "mp3");
+    HttpService.instance.post(tmp.request).then((result) {
+      if (!result.success) {
+        print("(ERROR): Request failed");
+        return;
+      }
+      print(
+          "Request(${result.uuid}): title ${result.title}, status ${result.status}, percent ${result.percent}");
+      setState(() {
+        this._lastResult = result;
+        this._msg = result.status;
+      });
+    });
+  }
+
+  void _checkIfNeeded() {
+    if (this._lastResult != null &&
+        (this._lastResult.status == "created" ||
+            this._lastResult.status == "started" ||
+            this._lastResult.status == "downloading" ||
+            this._lastResult.status == "converting")) {
+      print("Request not done");
+      HttpService.instance.get(this._lastResult.request).then((result) {
+        if (!result.success) {
+          print("(ERROR): Request failed");
+          return;
+        }
+        setState(() {
+          this._lastResult = result;
+          this._msg = result.status;
+        });
+        print(
+            "Request(${result.uuid}): title ${result.title}, status ${result.status}, percent ${result.percent}");
+      });
+    }
+  }
+
+  void _checkIfCanDownloadFile() {
+    if (this._lastResult == null || this._lastResult.status != "ended") return;
+    print("Request done\nDownloading...");
+    var tmp = RequestDownload(
+      fileName: "test.mp3",
+      url: this._lastResult.fileUrl,
+      onProgress: (downloaded, sizeMax) {
+        print("Download in progress ${downloaded / sizeMax * 100}%");
+      },
+      onDone: (file) async {
+        await audioPlayer.play(file.path);
+        this._lastResult = null;
+      },
+      onFail: () {
+        this._lastResult = null;
+      },
+    );
+    HttpService.instance.downloadFile(tmp).then((value) {});
+  }
+
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    _checkIfNeeded();
+    _checkIfCanDownloadFile();
     return Scaffold(
       body: Column(
         children: [
@@ -62,8 +123,7 @@ class _LoginPageState extends State<LoginPage> {
             height: 0,
             width: 0,
             child: WebView(
-              initialUrl:
-                  'https://mp3-youtube.download/fr/your-audio-converter',
+              initialUrl: Urls.mp3ConvertUrlBrowser,
               javascriptMode: JavascriptMode.unrestricted,
               onWebViewCreated: (controller) {
                 TokenService.instance.setController(controller);
@@ -73,13 +133,19 @@ class _LoginPageState extends State<LoginPage> {
               },
             ),
           ),
+          TextFormField(
+            initialValue: this._urlTxt,
+            onChanged: (str) {
+              setState(() {
+                this._urlTxt = str;
+              });
+            },
+          ),
+          Text(this._msg),
           FlatButton(
-            child: Text("Livreur colis KDO"),
+            child: Text("Télécharger"),
             onPressed: () async {
-              //_test();
-              var result =
-                  await HttpService.instance.post(_startRequest.request);
-              print("Request(" + result.uuid + "): status " + result.status);
+              _startDownload();
             },
           )
         ],

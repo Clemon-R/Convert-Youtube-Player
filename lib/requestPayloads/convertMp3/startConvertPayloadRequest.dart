@@ -1,12 +1,14 @@
 import '../../urls.dart';
-import './requestPayload.dart';
+import '../requestPayload.dart';
 import 'checkVideoStatusPayloadRequest.dart';
 
 class StartConvertPayloadRequest {
   final String url;
   final String extension;
 
-  StartConvertPayloadRequest(this.url, this.extension);
+  bool success;
+
+  StartConvertPayloadRequest({this.url, this.extension});
 
   StartConvertPayloadRequest.fromJson(Map<String, dynamic> json)
       : url = json['url'],
@@ -21,6 +23,13 @@ class StartConvertPayloadRequest {
           url: Urls.mp3ConvertUrlStart,
           body: this,
           onSuccess: (json) {
-            return CheckConvertPayloadRequest.fromJson(json);
+            var result = CheckConvertPayloadRequest.fromJson(json);
+            result.success = true;
+            return result;
+          },
+          onFail: (json) {
+            var result = CheckConvertPayloadRequest();
+            result.success = false;
+            return result;
           });
 }
