@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -7,6 +8,7 @@ import 'package:convertyoutubeplayer/enums/HeaderDomainEnum.dart';
 import 'package:convertyoutubeplayer/requestPayloads/requestDownload.dart';
 import 'package:convertyoutubeplayer/requestPayloads/requestPayload.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
 
 class HttpService {
@@ -62,38 +64,51 @@ class HttpService {
   Future<void> downloadFile(RequestDownload request) async {
     var httpClient = http.Client();
     var result = http.Request('GET', Uri.parse(request.url));
-    var response = httpClient.send(result);
+    Future<StreamedResponse> response;
+    try{
+      response = httpClient.send(result);
+    } catch(e){
+      request.onFail();
+      return;
+    }
     var dir =
         (await getExternalStorageDirectories(type: StorageDirectory.music))[0]
             .path;
-
     List<List<int>> chunks = new List();
     int downloaded = 0;
-    dynamic sub;
-    sub = response.asStream().listen((http.StreamedResponse r) {
-      r.stream.listen((value) {
-        chunks.add(value);
-        downloaded += value.length;
+    dynamic mainstream;
+    mainstream = response.asStream().listen((http.StreamedResponse r) {
+      dynamic sub;
+      sub = r.stream.listen((value) {
+        try{
+          chunks.add(value);
+          downloaded += value.length;
 
-        request.onProgress(downloaded, r.contentLength);
+          request.onProgress(downloaded, r.contentLength);
+        } catch (e){
+          request.onFail();
+          sub.cancel();
+          mainstream.cancel();
+        }
       }, onDone: () async {
         sub.cancel();
+        mainstream.cancel();
         // Save the file
-        print("$dir/${request.fileName}");
-        var file = new File('$dir/${request.fileName}');
-        final Uint8List bytes = Uint8List(r.contentLength);
-        int offset = 0;
-        for (List<int> chunk in chunks) {
-          bytes.setRange(offset, offset + chunk.length, chunk);
-          offset += chunk.length;
+        try {
+          print("$dir/${request.fileName}");
+          var file = new File('$dir/${request.fileName}');
+          final Uint8List bytes = Uint8List(r.contentLength);
+          int offset = 0;
+          for (List<int> chunk in chunks) {
+            bytes.setRange(offset, offset + chunk.length, chunk);
+            offset += chunk.length;
+          }
+          await file.writeAsBytes(bytes);
+          request.onDone(file);
+        } catch (e){
+          request.onFail();
         }
-        await file.writeAsBytes(bytes);
-        request.onDone(file);
       });
-    } /*, onError: () {
-      sub.cancel();
-      request.onFail();
-    }*/
-        );
+    });
   }
 }
