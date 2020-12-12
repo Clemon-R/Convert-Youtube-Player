@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
@@ -42,15 +43,35 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   CheckConvertPayloadRequest _lastResult;
-  AudioPlayer audioPlayer = AudioPlayer();
-  var _urlTxt = "https://www.youtube.com/watch?v=9vMLTcftlyI";
+  RequestDownload _lastDownload;
+  final _audioPlayer = AudioPlayer();
+  final _textController = TextEditingController();
+  WebViewController _webViewController;
+  Timer _refreshTimer;
+
+  var _urlTxt = Urls.youtube;
   var _msg = "";
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is removed from the widget tree.
+    // This also removes the _printLatestValue listener.
+    _textController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
     // Enable hybrid composition.
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
+
+    const halfSecond = const Duration(milliseconds: 500);
+    this._refreshTimer = new Timer.periodic(halfSecond, (Timer t) async {
+      if (this._webViewController == null) return;
+      this._urlTxt = await this._webViewController.currentUrl();
+      this._textController.text = this._urlTxt;
+    });
   }
 
   void _startDownload() {
@@ -93,23 +114,31 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _checkIfCanDownloadFile() {
-    if (this._lastResult == null || this._lastResult.status != "ended") return;
+    if (this._lastDownload != null || this._lastResult == null || this._lastResult.status != "ended") return;
     print("Request done\nDownloading...");
-    var tmp = RequestDownload(
-      fileName: "test.mp3",
+    _lastDownload = RequestDownload(
+      fileName: this._lastResult.title,
       url: this._lastResult.fileUrl,
       onProgress: (downloaded, sizeMax) {
         print("Download in progress ${downloaded / sizeMax * 100}%");
+        setState(() {
+          this._msg = "download";
+        });
       },
       onDone: (file) async {
-        await audioPlayer.play(file.path);
+        await _audioPlayer.play(file.path);
         this._lastResult = null;
+        this._lastDownload = null;
+        setState(() {
+          this._msg = "downloaded";
+        });
       },
       onFail: () {
         this._lastResult = null;
+        this._lastDownload = null;
       },
     );
-    HttpService.instance.downloadFile(tmp).then((value) {});
+    HttpService.instance.downloadFile(this._lastDownload);
   }
 
   @override
@@ -133,16 +162,30 @@ class _LoginPageState extends State<LoginPage> {
               },
             ),
           ),
-          TextFormField(
-            initialValue: this._urlTxt,
-            onChanged: (str) {
-              setState(() {
-                this._urlTxt = str;
-              });
-            },
+          Expanded(
+            child: WebView(
+              initialUrl: this._urlTxt,
+              javascriptMode: JavascriptMode.unrestricted,
+              onWebViewCreated: (controller) {
+                _webViewController = controller;
+              },
+            ),
           ),
-          Text(this._msg),
+          Container(
+            margin: const EdgeInsets.only(top: 10.0),
+            child: Text(
+                "Lien actuel"
+            ),
+          ),
+          TextField(
+            readOnly: true,
+            controller: _textController,
+          ),LinearProgressIndicator(
+            value: 0
+          ),
           FlatButton(
+            color: Color.fromRGBO(255, 0, 0, 1),
+            textColor: Color.fromRGBO(255, 255, 255, 1),
             child: Text("Télécharger"),
             onPressed: () async {
               _startDownload();
