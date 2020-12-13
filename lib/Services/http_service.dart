@@ -9,6 +9,7 @@ import 'package:convertyoutubeplayer/requestPayloads/requestDownload.dart';
 import 'package:convertyoutubeplayer/requestPayloads/requestPayload.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
+import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 class HttpService {
@@ -72,10 +73,13 @@ class HttpService {
       return;
     }
     var dir =
-        (await getExternalStorageDirectories(type: StorageDirectory.music))[0]
-            .path;
-    List<List<int>> chunks = new List();
-    int downloaded = 0;
+        Directory(p.join((await getApplicationDocumentsDirectory())
+            .path, "musics"));
+    if (!await dir.exists())
+      dir.create(recursive: true);
+
+    var chunks = new List<List<int>>();
+    var downloaded = 0;
     dynamic mainstream;
     mainstream = response.asStream().listen((http.StreamedResponse r) {
       dynamic sub;
@@ -95,8 +99,8 @@ class HttpService {
         mainstream.cancel();
         // Save the file
         try {
-          print("$dir/${request.fileName}");
-          var file = new File('$dir/${request.fileName}');
+          print("${p.join(dir.path, request.fileName)}");
+          var file = new File(p.join(dir.path, request.fileName));
           final Uint8List bytes = Uint8List(r.contentLength);
           int offset = 0;
           for (List<int> chunk in chunks) {

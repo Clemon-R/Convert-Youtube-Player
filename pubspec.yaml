@@ -21,6 +21,7 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
+  path: ^1.7.0
   audioplayers: ^0.17.0
   path_provider: ^1.6.24
   get_it: ^5.0.1
