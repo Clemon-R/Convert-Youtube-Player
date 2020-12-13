@@ -11,14 +11,22 @@ class DownloadPage extends StatefulWidget {
   _DownloadPageState createState() => _DownloadPageState();
 }
 class _DownloadPageState extends State<DownloadPage> {
+  String _audioPath;
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         body: Column(
           children: [
-            Expanded(child: YoutubeDownload()),
-            Container(child: AudioMp3Player())
+            Expanded(child: YoutubeDownload(onMusicDownloaded: (path){
+              setState(() {
+                this._audioPath = path;
+              });
+            })),
+            Container(child: AudioMp3Player((){
+              return this._audioPath;
+            }))
           ],
         ),
       ),

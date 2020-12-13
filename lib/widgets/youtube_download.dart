@@ -17,10 +17,16 @@ class YoutubeDownload extends StatefulWidget {
   // by the build  method of the State. Fields in a Widget
   // subclass are always marked "final".
 
+  YoutubeDownload({Key key, this.onMusicDownloaded}) : super(key: key);
+
+  final Function(String path) onMusicDownloaded;
+
   @override
-  _YoutubeDownloadState createState() => _YoutubeDownloadState();
+  _YoutubeDownloadState createState() => _YoutubeDownloadState(this.onMusicDownloaded);
 }
 class _YoutubeDownloadState extends State<YoutubeDownload> {
+  final Function(String path) onMusicDownloaded;
+
   CheckConvertPayloadRequest _lastResult;
   RequestDownload _lastDownload;
   WebViewController _webViewController;
@@ -30,6 +36,8 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
   var _currentFile = "";
   var _msg = "";
   var _progress = 0.0;
+
+  _YoutubeDownloadState(this.onMusicDownloaded);
 
   @override
   void initState() {
@@ -121,6 +129,7 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
       },
       onDone: (file) {
         _currentFile = file.path;
+        this.onMusicDownloaded(file.path);
         setState(() {
           this._lastResult = null;
           this._lastDownload = null;
