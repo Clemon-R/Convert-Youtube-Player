@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:convertyoutubeplayer/Services/http_service.dart';
 import 'package:convertyoutubeplayer/Services/token_service.dart';
 import 'package:convertyoutubeplayer/requestPayloads/convertMp3/checkVideoStatusPayloadRequest.dart';
@@ -22,8 +21,10 @@ class YoutubeDownload extends StatefulWidget {
   final Function(String path) onMusicDownloaded;
 
   @override
-  _YoutubeDownloadState createState() => _YoutubeDownloadState(this.onMusicDownloaded);
+  _YoutubeDownloadState createState() =>
+      _YoutubeDownloadState(this.onMusicDownloaded);
 }
+
 class _YoutubeDownloadState extends State<YoutubeDownload> {
   final Function(String path) onMusicDownloaded;
 
@@ -52,7 +53,8 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
       this._currentFile = null;
       this._lastDownload = null;
     });
-    var tmp = StartConvertPayloadRequest(url: this._currentUrl, extension: "mp3");
+    var tmp =
+        StartConvertPayloadRequest(url: this._currentUrl, extension: "mp3");
     HttpService.instance.post(tmp.request).then((result) {
       if (!result.success) {
         print("(ERROR): Request failed");
@@ -86,7 +88,7 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
         }
         setState(() {
           this._lastResult = result;
-          switch (this._lastResult.status){
+          switch (this._lastResult.status) {
             case "started":
               this._msg = "Demande en cours...";
               this._progress = 0;
@@ -115,10 +117,12 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
   }
 
   void _checkIfCanDownloadFile() {
-    if (this._lastDownload != null || this._lastResult == null || this._lastResult.status != "ended") return;
+    if (this._lastDownload != null ||
+        this._lastResult == null ||
+        this._lastResult.status != "ended") return;
     print("Request done\nDownloading...");
     _lastDownload = RequestDownload(
-      fileName: "${this._lastResult.title}.mp3",
+      fileName: "${this._lastResult.uuid}.mp3",
       url: this._lastResult.fileUrl,
       onProgress: (downloaded, sizeMax) {
         print("Download in progress ${downloaded / sizeMax * 100}%");
@@ -148,61 +152,66 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
     );
     HttpService.instance.downloadFile(this._lastDownload);
   }
+
   @override
   Widget build(BuildContext context) {
     _checkIfNeeded();
     _checkIfCanDownloadFile();
-    return Column(
-          children: [
-            Container(
-              height: 0,
-              width: 0,
-              child: WebView(
-                initialUrl: Urls.mp3ConvertUrlBrowser,
-                javascriptMode: JavascriptMode.unrestricted,
-                onWebViewCreated: (controller) {
-                  TokenService.instance.setController(controller);
-                },
-                onPageFinished: (url) {
-                  TokenService.instance.init();
+    var build = Column(
+      children: [
+        Container(
+          height: 0,
+          width: 0,
+          child: WebView(
+            initialUrl: Urls.mp3ConvertUrlBrowser,
+            javascriptMode: JavascriptMode.unrestricted,
+            onWebViewCreated: (controller) {
+              TokenService.instance.setController(controller);
+            },
+            onPageFinished: (url) {
+              TokenService.instance.init();
 
-                  const halfSecond = const Duration(milliseconds: 500);
-                  if (this._refreshTimer != null)return;
-                  this._refreshTimer = new Timer.periodic(halfSecond, (Timer t) async {
-                    if (this._webViewController == null) return;
-                    this._currentUrl = await this._webViewController.currentUrl();
-                  });
-                },
-              ),
-            ),
-            Expanded(
-              child: WebView(
-                initialUrl: this._currentUrl,
-                javascriptMode: JavascriptMode.unrestricted,
-                onWebViewCreated: (controller) {
-                  _webViewController = controller;
-                },
-              ),
-            ),
-            LinearProgressIndicator(
-              value: this._progress,
-              backgroundColor: Colors.grey,
-              minHeight: 10,
-              valueColor: AlwaysStoppedAnimation(Colors.red),
-            ),Text(
-                this._msg
-            ),
-            FlatButton(
-              color: Colors.red,
-              textColor: Colors.white,
-              disabledTextColor: Colors.white,
-              disabledColor: Color.fromRGBO(255, 0, 0, 0.5),
-              child: Text("Télécharger"),
-              onPressed: this._lastResult != null || this._lastDownload != null ? null : () async {
-                _startDownload();
-              },
-            ),
-          ],
-        );
+              const halfSecond = const Duration(milliseconds: 500);
+              if (this._refreshTimer != null) return;
+              this._refreshTimer =
+                  new Timer.periodic(halfSecond, (Timer t) async {
+                if (this._webViewController == null) return;
+                this._currentUrl = await this._webViewController.currentUrl();
+              });
+            },
+          ),
+        ),
+        Expanded(
+          child: WebView(
+            initialUrl: this._currentUrl,
+            javascriptMode: JavascriptMode.unrestricted,
+            onWebViewCreated: (controller) {
+              _webViewController = controller;
+            },
+          ),
+        ),
+        LinearProgressIndicator(
+          value: this._progress,
+          backgroundColor: Colors.grey,
+          minHeight: 10,
+          valueColor: AlwaysStoppedAnimation(Colors.red),
+        ),
+      ],
+    );
+    if (this._msg.isNotEmpty) build.children.add(Text(this._msg));
+
+    build.children.add(FlatButton(
+      color: Colors.red,
+      textColor: Colors.white,
+      disabledTextColor: Colors.white,
+      disabledColor: Color.fromRGBO(255, 0, 0, 0.5),
+      child: Text("Télécharger"),
+      onPressed: this._lastResult != null || this._lastDownload != null
+          ? null
+          : () async {
+              _startDownload();
+            },
+    ));
+    return build;
   }
 }

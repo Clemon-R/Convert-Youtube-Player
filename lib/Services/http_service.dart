@@ -66,30 +66,28 @@ class HttpService {
     var httpClient = http.Client();
     var result = http.Request('GET', Uri.parse(request.url));
     Future<StreamedResponse> response;
-    try{
+    try {
       response = httpClient.send(result);
-    } catch(e){
+    } catch (e) {
       request.onFail();
       return;
     }
-    var dir =
-        Directory(p.join((await getApplicationDocumentsDirectory())
-            .path, "musics"));
-    if (!await dir.exists())
-      dir.create(recursive: true);
+    var dir = Directory(
+        p.join((await getApplicationDocumentsDirectory()).path, "musics"));
+    if (!await dir.exists()) dir.create(recursive: true);
 
-    var chunks = new List<List<int>>();
+    var chunks = <List<int>>[];
     var downloaded = 0;
     dynamic mainstream;
     mainstream = response.asStream().listen((http.StreamedResponse r) {
       dynamic sub;
       sub = r.stream.listen((value) {
-        try{
+        try {
           chunks.add(value);
           downloaded += value.length;
 
           request.onProgress(downloaded, r.contentLength);
-        } catch (e){
+        } catch (e) {
           request.onFail();
           sub.cancel();
           mainstream.cancel();
@@ -109,7 +107,7 @@ class HttpService {
           }
           await file.writeAsBytes(bytes);
           request.onDone(file);
-        } catch (e){
+        } catch (e) {
           request.onFail();
         }
       });
