@@ -1,22 +1,34 @@
+import 'dart:convert';
+
 import 'package:convertyoutubeplayer/enums/HeaderDomainEnum.dart';
-import 'package:convertyoutubeplayer/http_models/convert_mp3/start_convert_music_request.dart';
-import 'package:convertyoutubeplayer/utils/reflector.dart';
-//import 'package:reflectable/mirrors.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 
-class WebRequest<U, T> {
+import 'default_model.dart';
+
+class WebRequest<U, T extends DefaultModel> {
   final String url;
-  final HeaderDomainEnum domain = HeaderDomainEnum.Mp3Convert;
+  final HeaderDomainEnum domain;
   U body;
-  T Function(Map<String, dynamic> json) onDone = (json) {
-    /*ClassMirror template = reflector.reflectType(T);
-    template.newInstance("", []);
-    if (template is StartConvertMusicRequest) {
-      print("OK !!!!");
-    }*/
-    return null;
-  };
-  T Function(Map<String, dynamic> json) onSuccess;
-  T Function(Map<String, dynamic> json) onFail;
+  T Function(String data, bool success) onDone;
+  T Function() constructor;
 
-  WebRequest({this.url, this.body, this.onSuccess, this.onFail});
+  WebRequest(
+      {@required this.constructor,
+      @required this.domain,
+      @required this.url,
+      this.body}) {
+    this.onDone = (data, success) {
+      T result;
+      try {
+        result = this.constructor();
+        result.fromJson(jsonDecode(data));
+        result.success = success;
+      } on Exception catch (ex) {
+        result = null;
+        print(ex.toString());
+      }
+      return result;
+    };
+  }
 }

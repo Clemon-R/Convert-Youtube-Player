@@ -1,21 +1,23 @@
-import 'package:convertyoutubeplayer/utils/reflector.dart';
+import 'package:convertyoutubeplayer/enums/HeaderDomainEnum.dart';
 
 import '../../urls.dart';
+import '../default_model.dart';
 import '../web_request.dart';
 import 'check_request_status_request.dart';
 
-//@reflector
-class StartConvertMusicRequest {
-  final String url;
-  final String extension;
-
-  bool success;
+class StartConvertMusicRequest extends DefaultModel {
+  String url;
+  String extension;
 
   StartConvertMusicRequest({this.url, this.extension});
 
-  StartConvertMusicRequest.fromJson(Map<String, dynamic> json)
-      : url = json['url'],
-        extension = json['extension'];
+  @override
+  fromJson(Map<String, dynamic> json) {
+    this.url = json['url'];
+    this.extension = json['extension'];
+  }
+
+  @override
   Map<String, dynamic> toJson() => {
         'url': url,
         'extension': extension,
@@ -23,16 +25,8 @@ class StartConvertMusicRequest {
 
   WebRequest<StartConvertMusicRequest, CheckRequestStatusRequest> get request =>
       WebRequest(
+          constructor: () => CheckRequestStatusRequest(),
+          domain: HeaderDomainEnum.Mp3Convert,
           url: Urls.mp3ConvertUrlStart,
-          body: this,
-          onSuccess: (json) {
-            var result = CheckRequestStatusRequest.fromJson(json);
-            result.success = true;
-            return result;
-          },
-          onFail: (json) {
-            var result = CheckRequestStatusRequest();
-            result.success = false;
-            return result;
-          });
+          body: this);
 }
