@@ -1,8 +1,11 @@
 import 'package:convertyoutubeplayer/urls.dart';
+import 'package:convertyoutubeplayer/utils/reflector.dart';
+//import 'package:reflectable/reflectable.dart';
 
-import '../requestPayload.dart';
+import '../web_request.dart';
 
-class CheckConvertPayloadRequest {
+//@reflector
+class CheckRequestStatusRequest {
   String uuid;
   String status;
   int percent;
@@ -12,9 +15,9 @@ class CheckConvertPayloadRequest {
 
   bool success;
 
-  CheckConvertPayloadRequest({this.uuid, this.status});
+  CheckRequestStatusRequest({this.uuid, this.status});
 
-  CheckConvertPayloadRequest.fromJson(Map<String, dynamic> json)
+  CheckRequestStatusRequest.fromJson(Map<String, dynamic> json)
       : uuid = json['data']['uuid'],
         status = json['data']['status'],
         percent = json['data']['percent'],
@@ -30,17 +33,17 @@ class CheckConvertPayloadRequest {
         'fileUrl': fileUrl,
       };
 
-  RequestPayload<CheckConvertPayloadRequest, CheckConvertPayloadRequest>
-      get request => RequestPayload(
+  WebRequest<CheckRequestStatusRequest, CheckRequestStatusRequest>
+      get request => WebRequest(
           url: Urls.mp3ConvertUrlCheck.replaceAll(":id", this.uuid),
           body: null,
           onSuccess: (json) {
-            var result = CheckConvertPayloadRequest.fromJson(json);
+            var result = CheckRequestStatusRequest.fromJson(json);
             result.success = true;
             return result;
           },
           onFail: (json) {
-            var result = CheckConvertPayloadRequest();
+            var result = CheckRequestStatusRequest();
             result.success = false;
             return result;
           });

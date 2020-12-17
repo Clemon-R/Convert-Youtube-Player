@@ -47,7 +47,7 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
       setState(() {
         var seconds = event.inSeconds % 60;
         var left = this._maxProgress - event.inSeconds;
-        var leftseconds = left % 60;
+        var leftseconds = left.toInt() % 60;
         this._duration =
             "${(event.inSeconds / 60).floor()}:${seconds <= 9 ? '0' : ''}$seconds";
         this._leftDuration =

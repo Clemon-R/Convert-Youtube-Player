@@ -5,8 +5,8 @@ import 'dart:typed_data';
 
 import 'package:convertyoutubeplayer/Services/token_service.dart';
 import 'package:convertyoutubeplayer/enums/HeaderDomainEnum.dart';
-import 'package:convertyoutubeplayer/requestPayloads/requestDownload.dart';
-import 'package:convertyoutubeplayer/requestPayloads/requestPayload.dart';
+import 'package:convertyoutubeplayer/http_models/file_download_request.dart';
+import 'package:convertyoutubeplayer/http_models/web_request.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:path/path.dart' as p;
@@ -35,7 +35,7 @@ class HttpService {
     return result;
   }
 
-  Future<T> post<U, T>(RequestPayload<U, T> request) async {
+  Future<T> post<U, T>(WebRequest<U, T> request) async {
     var json = jsonEncode(request.body);
 
     print("$TAG: Post Url(${request.url}), Body($json)");
@@ -51,18 +51,19 @@ class HttpService {
       return request.onFail(jsonDecode(body));
   }
 
-  Future<dynamic> get(RequestPayload request) async {
+  Future<dynamic> get(WebRequest request) async {
     print("$TAG: Get Url(${request.url})");
     var requestResult =
         await http.get(request.url, headers: headerSelector(request.domain));
     var body = requestResult.body;
+    request.onDone(jsonDecode(body));
     if (requestResult.statusCode == 200)
       return request.onSuccess(jsonDecode(body));
     else
       return request.onFail(jsonDecode(body));
   }
 
-  Future<void> downloadFile(RequestDownload request) async {
+  Future<void> downloadFile(FileDownloadRequest request) async {
     var httpClient = http.Client();
     var result = http.Request('GET', Uri.parse(request.url));
     Future<StreamedResponse> response;

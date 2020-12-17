@@ -3,9 +3,9 @@ import 'dart:io';
 
 import 'package:convertyoutubeplayer/Services/http_service.dart';
 import 'package:convertyoutubeplayer/Services/token_service.dart';
-import 'package:convertyoutubeplayer/requestPayloads/convertMp3/checkVideoStatusPayloadRequest.dart';
-import 'package:convertyoutubeplayer/requestPayloads/convertMp3/startConvertPayloadRequest.dart';
-import 'package:convertyoutubeplayer/requestPayloads/requestDownload.dart';
+import 'package:convertyoutubeplayer/http_models/convert_mp3/check_request_status_request.dart';
+import 'package:convertyoutubeplayer/http_models/convert_mp3/start_convert_music_request.dart';
+import 'package:convertyoutubeplayer/http_models/file_download_request.dart';
 import 'package:convertyoutubeplayer/urls.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -28,8 +28,8 @@ class YoutubeDownload extends StatefulWidget {
 class _YoutubeDownloadState extends State<YoutubeDownload> {
   final Function(String path) onMusicDownloaded;
 
-  CheckConvertPayloadRequest _lastResult;
-  RequestDownload _lastDownload;
+  CheckRequestStatusRequest _lastResult;
+  FileDownloadRequest _lastDownload;
   WebViewController _webViewController;
   Timer _refreshTimer;
 
@@ -53,8 +53,7 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
       this._currentFile = null;
       this._lastDownload = null;
     });
-    var tmp =
-        StartConvertPayloadRequest(url: this._currentUrl, extension: "mp3");
+    var tmp = StartConvertMusicRequest(url: this._currentUrl, extension: "mp3");
     HttpService.instance.post(tmp.request).then((result) {
       if (!result.success) {
         print("(ERROR): Request failed");
@@ -121,7 +120,7 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
         this._lastResult == null ||
         this._lastResult.status != "ended") return;
     print("Request done\nDownloading...");
-    _lastDownload = RequestDownload(
+    _lastDownload = FileDownloadRequest(
       fileName: "${this._lastResult.uuid}.mp3",
       url: this._lastResult.fileUrl,
       onProgress: (downloaded, sizeMax) {
