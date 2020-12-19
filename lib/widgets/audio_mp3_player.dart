@@ -1,4 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:convertyoutubeplayer/cache_models/audio_model.dart';
 import 'package:flutter/material.dart';
 import 'dart:core';
 
@@ -9,16 +10,16 @@ class AudioMp3Player extends StatefulWidget {
   // values (in this case nothing) provided by the parent and used
   // by the build  method of the State. Fields in a Widget
   // subclass are always marked "final".
-  AudioMp3Player(this.onNeedUrl, {Key key}) : super(key: key);
+  AudioMp3Player(this.onNeedAudio, {Key key}) : super(key: key);
 
-  final String Function() onNeedUrl;
+  final AudioModel Function() onNeedAudio;
 
   @override
-  _AudioMp3PlayerState createState() => _AudioMp3PlayerState(this.onNeedUrl);
+  _AudioMp3PlayerState createState() => _AudioMp3PlayerState(this.onNeedAudio);
 }
 
 class _AudioMp3PlayerState extends State<AudioMp3Player> {
-  final String Function() _onNeedUrl;
+  final AudioModel Function() _onNeedAudio;
   final _audioPlayer = AudioPlayer();
 
   String _leftDuration = "0:00";
@@ -29,7 +30,7 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
 
   String _msg;
 
-  _AudioMp3PlayerState(this._onNeedUrl);
+  _AudioMp3PlayerState(this._onNeedAudio);
 
   @override
   void initState() {
@@ -73,8 +74,8 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
 
   @override
   Widget build(BuildContext context) {
-    var path = this._onNeedUrl();
-    if (path != null) this._audioPlayer.setUrl(path, isLocal: true);
+    var audio = this._onNeedAudio();
+    if (audio != null) this._audioPlayer.setUrl(audio.pathFile, isLocal: true);
     return Container(
       color: Colors.white,
       child: Column(
@@ -118,7 +119,7 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
                     this._audioPlayer.state == AudioPlayerState.PLAYING
                         ? "assets/pause-symbol.svg"
                         : "assets/play-button-arrowhead.svg",
-                    color: path == null ? Colors.grey : Colors.black,
+                    color: audio == null ? Colors.grey : Colors.black,
                     semanticsLabel: 'up arrow',
                     width: 32,
                     height: 32,
@@ -126,7 +127,7 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
                       child: const CircularProgressIndicator(),
                     ),
                   ),
-                  onPressed: path == null
+                  onPressed: audio == null
                       ? null
                       : () {
                           if (this._audioPlayer.state !=
@@ -142,7 +143,10 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [Text("Title"), Text("Autheur")],
+                    children: [
+                      Text(audio?.title ?? "Title"),
+                      Text(audio?.author ?? "Autheur")
+                    ],
                   ),
                 ),
               ),

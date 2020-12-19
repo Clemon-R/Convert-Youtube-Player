@@ -57,6 +57,7 @@ class HttpService {
   }
 
   Future<void> downloadFile(FileDownloadRequest request) async {
+    print("$TAG: Download Url(${request.url}), FileName(${request.fileName})");
     var httpClient = http.Client();
     var result = http.Request('GET', Uri.parse(request.url));
     Future<StreamedResponse> response;
@@ -90,9 +91,10 @@ class HttpService {
         sub.cancel();
         mainstream.cancel();
         // Save the file
+        File file;
         try {
           print("${p.join(dir.path, request.fileName)}");
-          var file = new File(p.join(dir.path, request.fileName));
+          file = File(p.join(dir.path, request.fileName));
           final Uint8List bytes = Uint8List(r.contentLength);
           int offset = 0;
           for (List<int> chunk in chunks) {
@@ -100,10 +102,12 @@ class HttpService {
             offset += chunk.length;
           }
           await file.writeAsBytes(bytes);
-          request.onDone(file);
         } catch (e) {
+          print("$TAG(ERROR): ${e.toString()}");
           request.onFail();
+          return;
         }
+        request.onDone(file);
       });
     });
   }

@@ -1,8 +1,10 @@
+import 'package:convertyoutubeplayer/services/cache_service.dart';
 import 'package:convertyoutubeplayer/views/download_page_view.dart';
 import 'package:flutter/material.dart';
 
 void main() {
   runApp(MyApp());
+  CacheService.instance.loadCache();
 }
 
 class MyApp extends StatelessWidget {

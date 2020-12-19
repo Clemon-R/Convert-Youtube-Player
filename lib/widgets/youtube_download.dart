@@ -3,9 +3,11 @@ import 'dart:io';
 
 import 'package:convertyoutubeplayer/Services/http_service.dart';
 import 'package:convertyoutubeplayer/Services/token_service.dart';
+import 'package:convertyoutubeplayer/cache_models/audio_model.dart';
 import 'package:convertyoutubeplayer/http_models/convert_mp3/check_request_status_request.dart';
 import 'package:convertyoutubeplayer/http_models/convert_mp3/start_convert_music_request.dart';
 import 'package:convertyoutubeplayer/http_models/file_download_request.dart';
+import 'package:convertyoutubeplayer/services/cache_service.dart';
 import 'package:convertyoutubeplayer/urls.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -18,7 +20,7 @@ class YoutubeDownload extends StatefulWidget {
 
   YoutubeDownload({Key key, this.onMusicDownloaded}) : super(key: key);
 
-  final Function(String path) onMusicDownloaded;
+  final Function(AudioModel path) onMusicDownloaded;
 
   @override
   _YoutubeDownloadState createState() =>
@@ -26,7 +28,7 @@ class YoutubeDownload extends StatefulWidget {
 }
 
 class _YoutubeDownloadState extends State<YoutubeDownload> {
-  final Function(String path) onMusicDownloaded;
+  final Function(AudioModel path) onMusicDownloaded;
 
   CheckRequestStatusRequest _lastResult;
   FileDownloadRequest _lastDownload;
@@ -132,7 +134,13 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
       },
       onDone: (file) {
         _currentFile = file.path;
-        this.onMusicDownloaded(file.path);
+        var audio = AudioModel(
+            title: this._lastResult.title, author: null, pathFile: file.path);
+
+        CacheService.instance.content.audios.add(audio);
+        CacheService.instance.saveCache();
+
+        this.onMusicDownloaded(audio);
         setState(() {
           this._lastResult = null;
           this._lastDownload = null;
