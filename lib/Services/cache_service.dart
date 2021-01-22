@@ -41,6 +41,9 @@ class CacheService {
     print("$TAG: Json\n$content");
     var json = jsonDecode(content);
     this._content = CacheModel.fromJson(json);
+    for (var audio in this._content.audios)
+      print(
+          "$TAG: Audio Title(${audio.title}), Url(${audio.youtubeUrl}), Path(${audio.pathFile})");
     print("$TAG: Cache loaded");
   }
 
@@ -52,6 +55,9 @@ class CacheService {
       print("$TAG: Removing old cache");
       await file.delete();
     }
+    for (var audio in this._content.audios)
+      print(
+          "$TAG: Audio Title(${audio.title}), Url(${audio.youtubeUrl}), Path(${audio.pathFile})");
     var content = this._content.toJson();
     var json = jsonEncode(content);
     print("$TAG: Json\n$json");

@@ -95,6 +95,7 @@ class HttpService {
         try {
           print("${p.join(dir.path, request.fileName)}");
           file = File(p.join(dir.path, request.fileName));
+          if (file.existsSync()) file.deleteSync();
           final Uint8List bytes = Uint8List(r.contentLength);
           int offset = 0;
           for (List<int> chunk in chunks) {

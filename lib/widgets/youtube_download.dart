@@ -35,7 +35,8 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
   WebViewController _webViewController;
   Timer _refreshTimer;
 
-  var _currentUrl = Urls.youtube;
+  String _currentUrl = Urls.youtube;
+  String _downloadYoutubeUrl;
   //var _currentFile = "";
   var _msg = "";
   var _progress = 0.0;
@@ -66,6 +67,7 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
       print(
           "Request(${result.uuid}): title ${result.title}, status ${result.status}, percent ${result.percent}");
       setState(() {
+        this._downloadYoutubeUrl = this._currentUrl;
         this._lastResult = result;
         this._msg = result.status;
       });
@@ -135,10 +137,13 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
       onDone: (file) {
         //_currentFile = file.path;
         var audio = AudioModel(
-            title: this._lastResult.title, author: null, pathFile: file.path);
+            title: this._lastResult.title,
+            author: null,
+            pathFile: file.path,
+            youtubeUrl: this._downloadYoutubeUrl);
 
         if (!CacheService.instance.content.audios
-            .any((element) => element.title == audio.title)) {
+            .any((element) => element.youtubeUrl == audio.youtubeUrl)) {
           CacheService.instance.content.audios.add(audio);
           CacheService.instance.saveCache();
         }
@@ -186,7 +191,11 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
               this._refreshTimer =
                   new Timer.periodic(halfSecond, (Timer t) async {
                 if (this._webViewController == null) return;
-                this._currentUrl = await this._webViewController.currentUrl();
+                var url = await this._webViewController.currentUrl();
+                if (url != this._currentUrl)
+                  setState(() {
+                    this._currentUrl = url;
+                  });
               });
             },
           ),
@@ -218,7 +227,10 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
       disabledTextColor: Color.fromRGBO(221, 221, 221, 1),
       disabledColor: Color.fromRGBO(240, 84, 84, 0.5),
       child: Text("Télécharger"),
-      onPressed: this._lastResult != null || this._lastDownload != null
+      onPressed: this._lastResult != null ||
+              this._lastDownload != null ||
+              CacheService.instance.content.audios
+                  .any((audio) => audio.youtubeUrl == this._currentUrl)
           ? null
           : () async {
               _startDownload();

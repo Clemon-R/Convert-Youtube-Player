@@ -1,4 +1,5 @@
 import 'package:convertyoutubeplayer/views/download_page.dart';
+import 'package:convertyoutubeplayer/views/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -12,7 +13,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  int _currentIndex = 0;
+  int _currentIndex = 1;
 
   Widget _buildIcon(Widget icon, String text, int index) => Container(
         width: double.infinity,
@@ -56,7 +57,7 @@ class _MainPageState extends State<MainPage> {
       child: Scaffold(
         body: IndexedStack(
           index: this._currentIndex,
-          children: [Container(), DownloadPage(), Container()],
+          children: [SettingsPage(), DownloadPage(), Container()],
         ),
         bottomNavigationBar: BottomNavigationBar(
           backgroundColor: Color.fromRGBO(34, 40, 49, 1.0),
@@ -66,10 +67,10 @@ class _MainPageState extends State<MainPage> {
                 backgroundColor: Color.fromRGBO(48, 71, 94, 1),
                 icon: this._buildIcon(
                     SvgPicture.asset(
-                      "assets/home-24px.svg",
+                      "assets/settings-24px.svg",
                       color: Colors.white,
                     ),
-                    "Accueil",
+                    "Paramètres",
                     0),
                 label: ""),
             BottomNavigationBarItem(

@@ -11,6 +11,7 @@ class CheckRequestStatusRequest extends DefaultModel {
   String title;
   String thumbnail;
   String fileUrl;
+  String url;
 
   CheckRequestStatusRequest({this.uuid, this.status});
 
@@ -22,6 +23,7 @@ class CheckRequestStatusRequest extends DefaultModel {
     this.title = json['data']['title'];
     this.thumbnail = json['data']['thumbnail'];
     this.fileUrl = json['data']['fileUrl'];
+    this.url = json['data']['url'];
   }
 
   @override
@@ -32,6 +34,7 @@ class CheckRequestStatusRequest extends DefaultModel {
         'title': title,
         'thumbnail': thumbnail,
         'fileUrl': fileUrl,
+        'url': url,
       };
 
   WebRequest<CheckRequestStatusRequest, CheckRequestStatusRequest>
