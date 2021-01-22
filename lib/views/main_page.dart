@@ -1,4 +1,5 @@
 import 'package:convertyoutubeplayer/views/download_page.dart';
+import 'package:convertyoutubeplayer/views/playlist_page.dart';
 import 'package:convertyoutubeplayer/views/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -57,9 +58,14 @@ class _MainPageState extends State<MainPage> {
       child: Scaffold(
         body: IndexedStack(
           index: this._currentIndex,
-          children: [SettingsPage(), DownloadPage(), Container()],
+          children: [
+            PlaylistPage(),
+            DownloadPage(),
+            SettingsPage(),
+          ],
         ),
         bottomNavigationBar: BottomNavigationBar(
+          type: BottomNavigationBarType.shifting,
           backgroundColor: Color.fromRGBO(34, 40, 49, 1.0),
           selectedFontSize: 0,
           items: [
@@ -67,10 +73,10 @@ class _MainPageState extends State<MainPage> {
                 backgroundColor: Color.fromRGBO(48, 71, 94, 1),
                 icon: this._buildIcon(
                     SvgPicture.asset(
-                      "assets/settings-24px.svg",
+                      "assets/playlist_play-24px.svg",
                       color: Colors.white,
                     ),
-                    "Paramètres",
+                    "Playlist",
                     0),
                 label: ""),
             BottomNavigationBarItem(
@@ -87,10 +93,10 @@ class _MainPageState extends State<MainPage> {
                 backgroundColor: Color.fromRGBO(48, 71, 94, 1),
                 icon: this._buildIcon(
                     SvgPicture.asset(
-                      "assets/playlist_play-24px.svg",
+                      "assets/settings-24px.svg",
                       color: Colors.white,
                     ),
-                    "Playlist",
+                    "Paramètres",
                     2),
                 label: ""),
           ],

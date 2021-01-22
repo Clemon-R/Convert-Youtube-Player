@@ -140,7 +140,8 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
             title: this._lastResult.title,
             author: null,
             pathFile: file.path,
-            youtubeUrl: this._downloadYoutubeUrl);
+            youtubeUrl: this._downloadYoutubeUrl,
+            thumbnailUrl: this._lastResult.thumbnail);
 
         if (!CacheService.instance.content.audios
             .any((element) => element.youtubeUrl == audio.youtubeUrl)) {

@@ -65,9 +65,12 @@ class _SettingsPageState extends State<SettingsPage> {
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                     fontSize: 18)),
-            Container(
-              height: 1,
-              color: Colors.white,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+              child: Container(
+                height: 1,
+                color: Colors.white,
+              ),
             ),
             Table(
               children: [
@@ -83,7 +86,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             await this._deleteAllAudiosAndPlaylist();
                           },
                           textColor: Colors.white,
-                          color: Color.fromRGBO(48, 71, 94, 1),
+                          color: Color.fromRGBO(240, 84, 84, 1),
                           child: Text("Vider le cache"))),
                 ]),
                 TableRow(children: [
@@ -98,7 +101,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             await this._deleteAllAudiosFile();
                           },
                           textColor: Colors.white,
-                          color: Color.fromRGBO(48, 71, 94, 1),
+                          color: Color.fromRGBO(240, 84, 84, 1),
                           child: Text("Vider le cache"))),
                 ]),
                 TableRow(children: [
@@ -113,11 +116,13 @@ class _SettingsPageState extends State<SettingsPage> {
                             await this._deleteEverythingFromTheCache();
                           },
                           textColor: Colors.white,
-                          color: Color.fromRGBO(48, 71, 94, 1),
+                          color: Color.fromRGBO(240, 84, 84, 1),
                           child: Text("Vider le cache"))),
                 ]),
               ],
             ),
+            Text("Powered by mp3-youtube.download © 2021 - Raphaël Goulmot",
+                style: TextStyle(color: Colors.grey))
           ],
         ),
       )
