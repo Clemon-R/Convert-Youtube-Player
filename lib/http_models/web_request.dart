@@ -1,7 +1,6 @@
 import 'dart:convert';
 
-import 'package:convertyoutubeplayer/enums/HeaderDomainEnum.dart';
-import 'package:flutter/services.dart';
+import 'package:convertyoutubeplayer/enums/header_domain_enum.dart';
 import 'package:flutter/widgets.dart';
 
 import 'default_model.dart';

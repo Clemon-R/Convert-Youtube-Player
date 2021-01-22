@@ -23,12 +23,12 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
   final _audioPlayer = AudioPlayer();
 
   String _leftDuration = "0:00";
-  String _maxDuration = "0:00";
+  //String _maxDuration = "0:00";
   double _maxProgress = 0;
   String _duration = "0:00";
   double _progress = 0;
 
-  String _msg;
+  //String _msg;
 
   _AudioMp3PlayerState(this._onNeedAudio);
 
@@ -38,9 +38,9 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
 
     this._audioPlayer.onDurationChanged.listen((event) {
       setState(() {
-        var seconds = event.inSeconds % 60;
-        this._maxDuration =
-            "${(event.inSeconds / 60).floor()}:${seconds <= 9 ? '0' : ''}$seconds";
+        //var seconds = event.inSeconds % 60;
+        /*this._maxDuration =
+            "${(event.inSeconds / 60).floor()}:${seconds <= 9 ? '0' : ''}$seconds";*/
         this._maxProgress = event.inSeconds.toDouble();
       });
     });
@@ -61,14 +61,14 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
   _play() async {
     await this._audioPlayer.resume();
     setState(() {
-      this._msg = "Playing...";
+      //this._msg = "Playing...";
     });
   }
 
   _pause() async {
     await this._audioPlayer.pause();
     setState(() {
-      this._msg = "Stop";
+      //this._msg = "Stop";
     });
   }
 
@@ -77,14 +77,14 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
     var audio = this._onNeedAudio();
     if (audio != null) this._audioPlayer.setUrl(audio.pathFile, isLocal: true);
     return Container(
-      color: Colors.white,
+      color: Color.fromRGBO(48, 71, 94, 1),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SliderTheme(
             data: SliderThemeData(
-                activeTrackColor: Colors.red[700],
-                inactiveTrackColor: Colors.red[100],
+                activeTrackColor: Color.fromRGBO(240, 84, 84, 1),
+                inactiveTrackColor: Color.fromRGBO(240, 84, 84, 0.5),
                 activeTickMarkColor: Colors.transparent,
                 inactiveTickMarkColor: Colors.transparent,
                 trackShape: RectangularSliderTrackShape(),
@@ -119,7 +119,9 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
                     this._audioPlayer.state == AudioPlayerState.PLAYING
                         ? "assets/pause-symbol.svg"
                         : "assets/play-button-arrowhead.svg",
-                    color: audio == null ? Colors.grey : Colors.black,
+                    color: audio == null
+                        ? Color.fromRGBO(221, 221, 221, 1)
+                        : Colors.white,
                     semanticsLabel: 'up arrow',
                     width: 32,
                     height: 32,
@@ -144,16 +146,17 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(audio?.title ?? "Title"),
-                      Text(audio?.author ?? "Autheur")
+                      Text(audio?.title ?? "Title",
+                          style: TextStyle(color: Colors.white)),
+                      Text(audio?.author ?? "Autheur",
+                          style: TextStyle(color: Colors.white))
                     ],
                   ),
                 ),
               ),
-              Text(
-                this._leftDuration,
-                textAlign: TextAlign.end,
-              ),
+              Text(this._leftDuration,
+                  textAlign: TextAlign.end,
+                  style: TextStyle(color: Colors.white)),
             ],
           ),
         ],

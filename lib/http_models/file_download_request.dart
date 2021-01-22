@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:convertyoutubeplayer/enums/HeaderDomainEnum.dart';
+import 'package:convertyoutubeplayer/enums/header_domain_enum.dart';
 
 class FileDownloadRequest {
   final String fileName;

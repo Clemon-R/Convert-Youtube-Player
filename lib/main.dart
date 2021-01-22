@@ -1,5 +1,5 @@
 import 'package:convertyoutubeplayer/services/cache_service.dart';
-import 'package:convertyoutubeplayer/views/download_page_view.dart';
+import 'package:convertyoutubeplayer/views/main_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
         ),
         initialRoute: '/',
         routes: {
-          '/': (context) => DownloadPage(title: 'Login'),
+          '/': (context) => MainPage(title: 'Principale'),
         });
   }
 }

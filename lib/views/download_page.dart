@@ -28,7 +28,7 @@ class _DownloadPageState extends State<DownloadPage> {
             })),
             Container(child: AudioMp3Player(() {
               return this._audio;
-            }))
+            })),
           ],
         ),
       ),

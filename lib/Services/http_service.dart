@@ -4,7 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:convertyoutubeplayer/Services/token_service.dart';
-import 'package:convertyoutubeplayer/enums/HeaderDomainEnum.dart';
+import 'package:convertyoutubeplayer/enums/header_domain_enum.dart';
 import 'package:convertyoutubeplayer/http_models/default_model.dart';
 import 'package:convertyoutubeplayer/http_models/file_download_request.dart';
 import 'package:convertyoutubeplayer/http_models/web_request.dart';

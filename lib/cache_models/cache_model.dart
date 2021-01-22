@@ -1,7 +1,7 @@
 import 'package:convertyoutubeplayer/cache_models/audio_model.dart';
 
 class CacheModel {
-  List<AudioModel> audios = List.empty();
+  List<AudioModel> audios = List.empty(growable: true);
 
   CacheModel();
 

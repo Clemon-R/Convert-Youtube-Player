@@ -36,7 +36,7 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
   Timer _refreshTimer;
 
   var _currentUrl = Urls.youtube;
-  var _currentFile = "";
+  //var _currentFile = "";
   var _msg = "";
   var _progress = 0.0;
 
@@ -52,7 +52,7 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
   void _startDownload() {
     if (!TokenService.instance.initiated || this._lastResult != null) return;
     setState(() {
-      this._currentFile = null;
+      //this._currentFile = null;
       this._lastDownload = null;
     });
     var tmp = StartConvertMusicRequest(url: this._currentUrl, extension: "mp3");
@@ -133,12 +133,15 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
         });
       },
       onDone: (file) {
-        _currentFile = file.path;
+        //_currentFile = file.path;
         var audio = AudioModel(
             title: this._lastResult.title, author: null, pathFile: file.path);
 
-        CacheService.instance.content.audios.add(audio);
-        CacheService.instance.saveCache();
+        if (!CacheService.instance.content.audios
+            .any((element) => element.title == audio.title)) {
+          CacheService.instance.content.audios.add(audio);
+          CacheService.instance.saveCache();
+        }
 
         this.onMusicDownloaded(audio);
         setState(() {
@@ -205,13 +208,15 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
         ),
       ],
     );
-    if (this._msg.isNotEmpty) build.children.add(Text(this._msg));
+    if (this._msg.isNotEmpty)
+      build.children
+          .add(Text(this._msg, style: TextStyle(color: Colors.white)));
 
     build.children.add(FlatButton(
-      color: Colors.red,
+      color: Color.fromRGBO(240, 84, 84, 1),
       textColor: Colors.white,
-      disabledTextColor: Colors.white,
-      disabledColor: Color.fromRGBO(255, 0, 0, 0.5),
+      disabledTextColor: Color.fromRGBO(221, 221, 221, 1),
+      disabledColor: Color.fromRGBO(240, 84, 84, 0.5),
       child: Text("Télécharger"),
       onPressed: this._lastResult != null || this._lastDownload != null
           ? null
@@ -219,6 +224,9 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
               _startDownload();
             },
     ));
-    return build;
+    return Container(
+      color: Color.fromRGBO(34, 40, 49, 1.0),
+      child: build,
+    );
   }
 }
