@@ -1,7 +1,7 @@
-class DefaultModel {
+class BaseRequestModel {
   bool success = false;
 
-  DefaultModel();
+  BaseRequestModel();
   fromJson(Map<String, dynamic> json) {}
   Map<String, dynamic> toJson() {
     return null;

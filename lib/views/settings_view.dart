@@ -3,22 +3,22 @@ import 'dart:io';
 import 'package:convertyoutubeplayer/services/cache_service.dart';
 import 'package:flutter/material.dart';
 
-class SettingsPage extends StatefulWidget {
+class SettingsView extends StatefulWidget {
   static const String TAG = "CacheService";
 
-  SettingsPage({Key key, this.title}) : super(key: key);
+  SettingsView({Key key, this.title}) : super(key: key);
 
   final String title;
 
   @override
-  _SettingsPageState createState() => _SettingsPageState();
+  _SettingsViewState createState() => _SettingsViewState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsViewState extends State<SettingsView> {
   bool _isBusy = false;
 
   _deleteAllAudiosFile() async {
-    print("${SettingsPage.TAG}: Deleting every audio file...");
+    print("${SettingsView.TAG}: Deleting every audio file...");
     setState(() {
       this._isBusy = true;
     });
@@ -26,17 +26,17 @@ class _SettingsPageState extends State<SettingsPage> {
       var file = File(audio.pathFile);
 
       if (!await file.exists()) continue;
-      print("${SettingsPage.TAG}: Deleting ${audio.title}...");
+      print("${SettingsView.TAG}: Deleting ${audio.title}...");
       await file.delete();
     }
     setState(() {
       this._isBusy = false;
     });
-    print("${SettingsPage.TAG}: All audio file has been deleted");
+    print("${SettingsView.TAG}: All audio file has been deleted");
   }
 
   _deleteAllAudiosAndPlaylist() async {
-    print("${SettingsPage.TAG}: Deleting the cache...");
+    print("${SettingsView.TAG}: Deleting the cache...");
     setState(() {
       this._isBusy = true;
     });
@@ -45,7 +45,7 @@ class _SettingsPageState extends State<SettingsPage> {
     setState(() {
       this._isBusy = false;
     });
-    print("${SettingsPage.TAG}: Cache empty");
+    print("${SettingsView.TAG}: Cache empty");
   }
 
   _deleteEverythingFromTheCache() async {

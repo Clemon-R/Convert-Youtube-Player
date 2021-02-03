@@ -1,1 +1,0 @@
-enum NavPageEnum { Home, Download }

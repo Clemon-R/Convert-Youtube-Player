@@ -1,19 +1,22 @@
-import 'package:convertyoutubeplayer/cache_models/audio_model.dart';
 import 'package:convertyoutubeplayer/widgets/audio_mp3_player.dart';
 import 'package:convertyoutubeplayer/widgets/youtube_download.dart';
 import 'package:flutter/material.dart';
 
-class DownloadPage extends StatefulWidget {
-  DownloadPage({Key key, this.title}) : super(key: key);
+class DownloadView extends StatefulWidget {
+  DownloadView({Key key, this.title, @required this.audioMp3Player})
+      : super(key: key);
 
   final String title;
+  final AudioMp3Player audioMp3Player;
 
   @override
-  _DownloadPageState createState() => _DownloadPageState();
+  _DownloadViewState createState() => _DownloadViewState(this.audioMp3Player);
 }
 
-class _DownloadPageState extends State<DownloadPage> {
-  AudioModel _audio;
+class _DownloadViewState extends State<DownloadView> {
+  AudioMp3Player audioMp3Player;
+
+  _DownloadViewState(this.audioMp3Player);
 
   @override
   Widget build(BuildContext context) {
@@ -22,12 +25,7 @@ class _DownloadPageState extends State<DownloadPage> {
         body: Column(
           children: [
             Expanded(child: YoutubeDownload(onMusicDownloaded: (audio) {
-              setState(() {
-                this._audio = audio;
-              });
-            })),
-            Container(child: AudioMp3Player(() {
-              return this._audio;
+              this.audioMp3Player.loadAudio(audio);
             })),
           ],
         ),

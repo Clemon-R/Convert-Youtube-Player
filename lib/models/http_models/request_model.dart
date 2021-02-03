@@ -3,16 +3,16 @@ import 'dart:convert';
 import 'package:convertyoutubeplayer/enums/header_domain_enum.dart';
 import 'package:flutter/widgets.dart';
 
-import 'default_model.dart';
+import 'base_request_model.dart';
 
-class WebRequest<U, T extends DefaultModel> {
+class RequestModel<U, T extends BaseRequestModel> {
   final String url;
   final HeaderDomainEnum domain;
   U body;
   T Function(String data, bool success) onDone;
   T Function() constructor;
 
-  WebRequest(
+  RequestModel(
       {@required this.constructor,
       @required this.domain,
       @required this.url,

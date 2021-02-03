@@ -1,19 +1,22 @@
-import 'package:convertyoutubeplayer/views/download_page.dart';
-import 'package:convertyoutubeplayer/views/playlist_page.dart';
-import 'package:convertyoutubeplayer/views/settings_page.dart';
+import 'package:convertyoutubeplayer/views/download_view.dart';
+import 'package:convertyoutubeplayer/views/musics_view.dart';
+import 'package:convertyoutubeplayer/views/playlist_view.dart';
+import 'package:convertyoutubeplayer/views/settings_view.dart';
+import 'package:convertyoutubeplayer/widgets/audio_mp3_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-class MainPage extends StatefulWidget {
-  MainPage({Key key, this.title}) : super(key: key);
+class MainView extends StatefulWidget {
+  MainView({Key key, this.title}) : super(key: key);
 
   final String title;
 
   @override
-  _MainPageState createState() => _MainPageState();
+  _MainViewState createState() => _MainViewState();
 }
 
-class _MainPageState extends State<MainPage> {
+class _MainViewState extends State<MainView> {
+  AudioMp3Player _audioPlayer;
   int _currentIndex = 1;
 
   Widget _buildIcon(Widget icon, String text, int index) => Container(
@@ -54,14 +57,31 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (this._audioPlayer == null) this._audioPlayer = AudioMp3Player();
     return SafeArea(
       child: Scaffold(
-        body: IndexedStack(
-          index: this._currentIndex,
+        body: Column(
           children: [
-            PlaylistPage(),
-            DownloadPage(),
-            SettingsPage(),
+            Expanded(
+              child: Container(
+                child: IndexedStack(
+                  index: this._currentIndex,
+                  children: [
+                    MusicsView(
+                      audioMp3Player: this._audioPlayer,
+                    ),
+                    PlaylistView(
+                      audioMp3Player: this._audioPlayer,
+                    ),
+                    DownloadView(
+                      audioMp3Player: this._audioPlayer,
+                    ),
+                    SettingsView(),
+                  ],
+                ),
+              ),
+            ),
+            this._audioPlayer,
           ],
         ),
         bottomNavigationBar: BottomNavigationBar(
@@ -73,11 +93,21 @@ class _MainPageState extends State<MainPage> {
                 backgroundColor: Color.fromRGBO(48, 71, 94, 1),
                 icon: this._buildIcon(
                     SvgPicture.asset(
+                      "assets/audiotrack-24px.svg",
+                      color: Colors.white,
+                    ),
+                    "Musiques",
+                    0),
+                label: ""),
+            BottomNavigationBarItem(
+                backgroundColor: Color.fromRGBO(48, 71, 94, 1),
+                icon: this._buildIcon(
+                    SvgPicture.asset(
                       "assets/playlist_play-24px.svg",
                       color: Colors.white,
                     ),
                     "Playlist",
-                    0),
+                    1),
                 label: ""),
             BottomNavigationBarItem(
                 backgroundColor: Color.fromRGBO(48, 71, 94, 1),
@@ -87,7 +117,7 @@ class _MainPageState extends State<MainPage> {
                       color: Colors.white,
                     ),
                     "Téléchargement",
-                    1),
+                    2),
                 label: ""),
             BottomNavigationBarItem(
                 backgroundColor: Color.fromRGBO(48, 71, 94, 1),
@@ -97,7 +127,7 @@ class _MainPageState extends State<MainPage> {
                       color: Colors.white,
                     ),
                     "Paramètres",
-                    2),
+                    3),
                 label: ""),
           ],
           currentIndex: this._currentIndex,

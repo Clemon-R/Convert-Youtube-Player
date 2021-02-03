@@ -1,36 +1,55 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:convertyoutubeplayer/cache_models/audio_model.dart';
+import 'package:convertyoutubeplayer/models/cache_models/audio_model.dart';
 import 'package:flutter/material.dart';
 import 'dart:core';
 
 import 'package:flutter_svg/svg.dart';
 
+// ignore: must_be_immutable
 class AudioMp3Player extends StatefulWidget {
   // This class is the configuration for the state. It holds the
   // values (in this case nothing) provided by the parent and used
   // by the build  method of the State. Fields in a Widget
   // subclass are always marked "final".
-  AudioMp3Player(this.onNeedAudio, {Key key}) : super(key: key);
+  _AudioMp3PlayerState currentState;
 
-  final AudioModel Function() onNeedAudio;
+  final String title;
+
+  AudioMp3Player({Key key, this.title}) : super(key: key);
+
+  loadAudio(AudioModel audio) {
+    if (this.currentState == null)
+      throw Exception("La vue n'a pas été générer");
+    this.currentState.loadAudio(audio);
+  }
 
   @override
-  _AudioMp3PlayerState createState() => _AudioMp3PlayerState(this.onNeedAudio);
+  _AudioMp3PlayerState createState() {
+    this.currentState = _AudioMp3PlayerState();
+    return this.currentState;
+  }
 }
 
 class _AudioMp3PlayerState extends State<AudioMp3Player> {
-  final AudioModel Function() _onNeedAudio;
   final _audioPlayer = AudioPlayer();
 
   String _leftDuration = "0:00";
-  //String _maxDuration = "0:00";
   double _maxProgress = 0;
   String _duration = "0:00";
   double _progress = 0;
 
   //String _msg;
+  AudioModel currentAudio;
+  List<AudioModel> playlist = List.empty();
 
-  _AudioMp3PlayerState(this._onNeedAudio);
+  _AudioMp3PlayerState({this.currentAudio, this.playlist});
+
+  loadAudio(AudioModel audio) {
+    setState(() {
+      this.currentAudio = audio;
+      this._audioPlayer.setUrl(audio.pathFile, isLocal: true);
+    });
+  }
 
   @override
   void initState() {
@@ -38,9 +57,6 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
 
     this._audioPlayer.onDurationChanged.listen((event) {
       setState(() {
-        //var seconds = event.inSeconds % 60;
-        /*this._maxDuration =
-            "${(event.inSeconds / 60).floor()}:${seconds <= 9 ? '0' : ''}$seconds";*/
         this._maxProgress = event.inSeconds.toDouble();
       });
     });
@@ -60,22 +76,14 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
 
   _play() async {
     await this._audioPlayer.resume();
-    setState(() {
-      //this._msg = "Playing...";
-    });
   }
 
   _pause() async {
     await this._audioPlayer.pause();
-    setState(() {
-      //this._msg = "Stop";
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    var audio = this._onNeedAudio();
-    if (audio != null) this._audioPlayer.setUrl(audio.pathFile, isLocal: true);
     return Container(
       color: Color.fromRGBO(48, 71, 94, 1),
       child: Column(
@@ -119,7 +127,7 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
                     this._audioPlayer.state == AudioPlayerState.PLAYING
                         ? "assets/pause-symbol.svg"
                         : "assets/play-button-arrowhead.svg",
-                    color: audio == null
+                    color: this.currentAudio == null
                         ? Color.fromRGBO(221, 221, 221, 1)
                         : Colors.white,
                     semanticsLabel: 'up arrow',
@@ -129,7 +137,7 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
                       child: const CircularProgressIndicator(),
                     ),
                   ),
-                  onPressed: audio == null
+                  onPressed: this.currentAudio == null
                       ? null
                       : () {
                           if (this._audioPlayer.state !=
@@ -146,9 +154,9 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(audio?.title ?? "Title",
+                      Text(this.currentAudio?.title ?? "Title",
                           style: TextStyle(color: Colors.white)),
-                      Text(audio?.author ?? "Autheur",
+                      Text(this.currentAudio?.author ?? "Autheur",
                           style: TextStyle(color: Colors.white))
                     ],
                   ),

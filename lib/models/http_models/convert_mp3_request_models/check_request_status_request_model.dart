@@ -1,10 +1,10 @@
 import 'package:convertyoutubeplayer/enums/header_domain_enum.dart';
-import 'package:convertyoutubeplayer/http_models/default_model.dart';
-import 'package:convertyoutubeplayer/urls.dart';
+import 'package:convertyoutubeplayer/models/http_models/base_request_model.dart';
+import 'package:convertyoutubeplayer/constant/urls.dart';
 
-import '../web_request.dart';
+import '../request_model.dart';
 
-class CheckRequestStatusRequest extends DefaultModel {
+class CheckRequestStatusRequestModel extends BaseRequestModel {
   String uuid;
   String status;
   int percent;
@@ -13,7 +13,7 @@ class CheckRequestStatusRequest extends DefaultModel {
   String fileUrl;
   String url;
 
-  CheckRequestStatusRequest({this.uuid, this.status});
+  CheckRequestStatusRequestModel({this.uuid, this.status});
 
   @override
   fromJson(Map<String, dynamic> json) {
@@ -37,9 +37,9 @@ class CheckRequestStatusRequest extends DefaultModel {
         'url': url,
       };
 
-  WebRequest<CheckRequestStatusRequest, CheckRequestStatusRequest>
-      get request => WebRequest(
-          constructor: () => CheckRequestStatusRequest(),
+  RequestModel<CheckRequestStatusRequestModel, CheckRequestStatusRequestModel>
+      get request => RequestModel(
+          constructor: () => CheckRequestStatusRequestModel(),
           domain: HeaderDomainEnum.Mp3Convert,
           url: Urls.mp3ConvertUrlCheck.replaceAll(":id", this.uuid));
 }
