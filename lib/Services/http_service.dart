@@ -3,21 +3,23 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:convertyoutubeplayer/Services/token_service.dart';
+import 'package:convertyoutubeplayer/services/token_service.dart';
 import 'package:convertyoutubeplayer/enums/header_domain_enum.dart';
 import 'package:convertyoutubeplayer/models/http_models/base_request_model.dart';
 import 'package:convertyoutubeplayer/models/http_models/download_request_model.dart';
 import 'package:convertyoutubeplayer/models/http_models/request_model.dart';
+import 'package:convertyoutubeplayer/services/base_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-class HttpService {
+class HttpService extends BaseService {
   static const String TAG = "HttpService";
 
-  static HttpService _instance = HttpService();
-  static HttpService get instance => _instance;
+  TokenService _tokenService;
+
+  HttpService(this._tokenService);
 
   Map<String, String> headerSelector(HeaderDomainEnum type) {
     Map<String, String> result;
@@ -26,8 +28,8 @@ class HttpService {
         result = {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
-          'X-Token': TokenService.instance.token,
-          'X-XSFR-Token': TokenService.instance.xsrfToken
+          'X-Token': _tokenService.token,
+          'X-XSFR-Token': _tokenService.xsrfToken
         };
         break;
       case HeaderDomainEnum.Youtube:

@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:convertyoutubeplayer/Services/http_service.dart';
-import 'package:convertyoutubeplayer/Services/token_service.dart';
+import 'package:convertyoutubeplayer/services/http_service.dart';
+import 'package:convertyoutubeplayer/services/token_service.dart';
 import 'package:convertyoutubeplayer/models/cache_models/audio_model.dart';
+import 'package:convertyoutubeplayer/models/cache_models/playlist_model.dart';
 import 'package:convertyoutubeplayer/models/http_models/convert_mp3_request_models/check_request_status_request_model.dart';
 import 'package:convertyoutubeplayer/models/http_models/convert_mp3_request_models/start_convert_music_request_model.dart';
 import 'package:convertyoutubeplayer/models/http_models/download_request_model.dart';
+import 'package:convertyoutubeplayer/provider/service_provider.dart';
 import 'package:convertyoutubeplayer/services/cache_service.dart';
 import 'package:convertyoutubeplayer/constant/urls.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +30,9 @@ class YoutubeDownload extends StatefulWidget {
 }
 
 class _YoutubeDownloadState extends State<YoutubeDownload> {
+  CacheService _cacheService = ServiceProvider.get();
+  HttpService _httpService = ServiceProvider.get();
+  TokenService _tokenService = ServiceProvider.get();
   final Function(AudioModel path) onMusicDownloaded;
 
   CheckRequestStatusRequestModel _lastRequest;
@@ -51,14 +56,14 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
   }
 
   void _startDownload() {
-    if (!TokenService.instance.initiated || this._lastRequest != null) return;
+    if (!_tokenService.initiated || this._lastRequest != null) return;
     setState(() {
       //this._currentFile = null;
       this._lastDownload = null;
     });
     var tmp =
         StartConvertMusicRequestModel(url: this._currentUrl, extension: "mp3");
-    HttpService.instance.post(tmp.request).then((result) {
+    _httpService.post(tmp.request).then((result) {
       if (!result.success) {
         print("(ERROR): Request failed");
         this._msg = "Une erreur ses produite";
@@ -82,7 +87,7 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
             this._lastRequest.status == "downloading" ||
             this._lastRequest.status == "converting")) {
       print("Request not done");
-      HttpService.instance.get(this._lastRequest.request).then((result) {
+      _httpService.get(this._lastRequest.request).then((result) {
         if (!result.success) {
           print("(ERROR): Request failed");
           this._lastRequest = null;
@@ -136,7 +141,6 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
         });
       },
       onDone: (file) {
-        //_currentFile = file.path;
         var audio = AudioModel(
             title: this._lastRequest.title,
             author: null,
@@ -144,10 +148,15 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
             youtubeUrl: this._downloadYoutubeUrl,
             thumbnailUrl: this._lastRequest.thumbnail);
 
-        if (!CacheService.instance.content.audios
-            .any((element) => element.youtubeUrl == audio.youtubeUrl)) {
-          CacheService.instance.content.audios.add(audio);
-          CacheService.instance.saveCache();
+        if (!_cacheService.content.audios.containsKey(audio.youtubeUrl)) {
+          if (!_cacheService.content.playlists.containsKey("default")) {
+            _cacheService.content.playlists["default"] =
+                PlaylistModel(title: "default", musics: Map());
+          }
+          _cacheService.content.playlists["default"].musics[audio.youtubeUrl] =
+              audio;
+          _cacheService.content.audios[audio.youtubeUrl] = audio;
+          _cacheService.saveCache();
         }
 
         this.onMusicDownloaded(audio);
@@ -167,7 +176,7 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
         });
       },
     );
-    HttpService.instance.downloadFile(this._lastDownload);
+    _httpService.downloadFile(this._lastDownload);
   }
 
   @override
@@ -183,10 +192,10 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
             initialUrl: Urls.mp3ConvertUrlBrowser,
             javascriptMode: JavascriptMode.unrestricted,
             onWebViewCreated: (controller) {
-              TokenService.instance.setController(controller);
+              _tokenService.setController(controller);
             },
             onPageFinished: (url) {
-              TokenService.instance.init();
+              _tokenService.init();
 
               const halfSecond = const Duration(milliseconds: 500);
               if (this._refreshTimer != null) return;
@@ -233,8 +242,7 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
       child: Text("Télécharger"),
       onPressed: this._lastRequest != null ||
               this._lastDownload != null ||
-              CacheService.instance.content.audios
-                  .any((audio) => audio.youtubeUrl == this._currentUrl)
+              _cacheService.content.audios.containsKey(this._currentUrl)
           ? null
           : () async {
               _startDownload();

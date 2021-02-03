@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:convertyoutubeplayer/provider/service_provider.dart';
 import 'package:convertyoutubeplayer/services/cache_service.dart';
 import 'package:flutter/material.dart';
 
@@ -15,6 +16,7 @@ class SettingsView extends StatefulWidget {
 }
 
 class _SettingsViewState extends State<SettingsView> {
+  CacheService _cacheService = ServiceProvider.get();
   bool _isBusy = false;
 
   _deleteAllAudiosFile() async {
@@ -22,7 +24,7 @@ class _SettingsViewState extends State<SettingsView> {
     setState(() {
       this._isBusy = true;
     });
-    for (var audio in CacheService.instance.content.audios) {
+    for (var audio in _cacheService.content.audios.values) {
       var file = File(audio.pathFile);
 
       if (!await file.exists()) continue;
@@ -40,8 +42,8 @@ class _SettingsViewState extends State<SettingsView> {
     setState(() {
       this._isBusy = true;
     });
-    CacheService.instance.content.audios.clear();
-    await CacheService.instance.saveCache();
+    _cacheService.content.audios.clear();
+    await _cacheService.saveCache();
     setState(() {
       this._isBusy = false;
     });

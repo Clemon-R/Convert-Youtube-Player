@@ -1,10 +1,8 @@
+import 'package:convertyoutubeplayer/services/base_service.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-class TokenService {
+class TokenService extends BaseService {
   static const String TAG = "TokenService";
-
-  static TokenService _instance = TokenService();
-  static TokenService get instance => _instance;
 
   WebViewController _webViewController;
   String _token;

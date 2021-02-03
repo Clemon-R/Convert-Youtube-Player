@@ -2,13 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:convertyoutubeplayer/models/cache_models/cache_model.dart';
+import 'package:convertyoutubeplayer/services/base_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
-class CacheService {
+class CacheService extends BaseService {
   static const String TAG = "CacheService";
-  static CacheService _instance = CacheService();
-  static CacheService get instance => _instance;
 
   Directory _homeDirectory;
   String _fileName = "cache.conf";
@@ -41,7 +40,7 @@ class CacheService {
     print("$TAG: Json\n$content");
     var json = jsonDecode(content);
     this._content = CacheModel.fromJson(json);
-    for (var audio in this._content.audios)
+    for (var audio in this._content.audios.values)
       print(
           "$TAG: Audio Title(${audio.title}), Url(${audio.youtubeUrl}), Path(${audio.pathFile})");
     print("$TAG: Cache loaded");
@@ -55,7 +54,7 @@ class CacheService {
       print("$TAG: Removing old cache");
       await file.delete();
     }
-    for (var audio in this._content.audios)
+    for (var audio in this._content.audios.values)
       print(
           "$TAG: Audio Title(${audio.title}), Url(${audio.youtubeUrl}), Path(${audio.pathFile})");
     var content = this._content.toJson();

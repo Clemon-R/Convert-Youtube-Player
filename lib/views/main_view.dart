@@ -36,11 +36,11 @@ class _MainViewState extends State<MainView> {
                   style: index == this._currentIndex
                       ? TextStyle(
                           color: Colors.white,
-                          fontSize: 14,
+                          fontSize: 12,
                         )
                       : TextStyle(
                           color: Colors.white.withAlpha(150),
-                          fontSize: 12,
+                          fontSize: 10,
                         ),
                   duration: Duration(milliseconds: 200),
                 ),
