@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:convertyoutubeplayer/constant/common.dart';
-import 'package:convertyoutubeplayer/models/cache_models/playlist_model.dart';
 import 'package:convertyoutubeplayer/provider/service_provider.dart';
 import 'package:convertyoutubeplayer/services/playlist_service.dart';
 import 'package:convertyoutubeplayer/widgets/audio_mp3_player.dart';
@@ -33,9 +32,9 @@ class _MusicsViewState extends State<MusicsView> {
 
   @override
   Widget build(BuildContext context) {
-    PlaylistModel defaultPlaylist =
-        _playlistService.getPlaylistByName(Common.DEFAULT_PLAYLIST) ??
-            List.empty();
+    var defaultPlaylist =
+        _playlistService.getPlaylistByName(Common.DEFAULT_PLAYLIST);
+    var musics = defaultPlaylist?.musics ?? Map();
     return Container(
         color: Color.fromRGBO(34, 40, 49, 1),
         child: Column(
@@ -43,9 +42,9 @@ class _MusicsViewState extends State<MusicsView> {
             Expanded(
               child: ListView.builder(
                   shrinkWrap: true,
-                  itemCount: defaultPlaylist.musics.length,
+                  itemCount: musics.length,
                   itemBuilder: (context, index) {
-                    var audio = defaultPlaylist.musics[index];
+                    var audio = musics.values.elementAt(index);
                     return Container(
                       color: Color.fromRGBO(48, 71, 94, 1),
                       height: 60,

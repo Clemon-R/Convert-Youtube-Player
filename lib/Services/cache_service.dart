@@ -37,7 +37,7 @@ class CacheService extends BaseService {
       return;
     }
     var content = await file.readAsString();
-    print("$TAG: Json\n$content");
+    print("$TAG: Json content\n$content");
     var json = jsonDecode(content);
     this._content = CacheModel.fromJson(json);
     print("$TAG: Cache loaded");
@@ -52,6 +52,7 @@ class CacheService extends BaseService {
       await file.delete();
     }
     var content = this._content.toJson();
+    print("$TAG: Json content\n$content");
     var json = jsonEncode(content);
     print("$TAG: Json\n$json");
     await file.writeAsString(json);
