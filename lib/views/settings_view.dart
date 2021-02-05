@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:convertyoutubeplayer/constant/common.dart';
 import 'package:convertyoutubeplayer/provider/service_provider.dart';
 import 'package:convertyoutubeplayer/services/cache_service.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +25,11 @@ class _SettingsViewState extends State<SettingsView> {
     setState(() {
       this._isBusy = true;
     });
-    for (var audio in _cacheService.content.audios.values) {
+    var musics = _cacheService
+            .content.playlists[Common.DEFAULT_PLAYLIST]?.musics?.values
+            ?.toList() ??
+        List.empty();
+    for (var audio in musics) {
       var file = File(audio.pathFile);
 
       if (!await file.exists()) continue;
@@ -42,7 +47,9 @@ class _SettingsViewState extends State<SettingsView> {
     setState(() {
       this._isBusy = true;
     });
-    _cacheService.content.audios.clear();
+    _cacheService.content.playlists.forEach((key, value) {
+      value.musics.clear();
+    });
     await _cacheService.saveCache();
     setState(() {
       this._isBusy = false;

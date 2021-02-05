@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:convertyoutubeplayer/constant/common.dart';
 import 'package:convertyoutubeplayer/services/http_service.dart';
+import 'package:convertyoutubeplayer/services/playlist_service.dart';
 import 'package:convertyoutubeplayer/services/token_service.dart';
 import 'package:convertyoutubeplayer/models/cache_models/audio_model.dart';
 import 'package:convertyoutubeplayer/models/cache_models/playlist_model.dart';
@@ -30,7 +32,7 @@ class YoutubeDownload extends StatefulWidget {
 }
 
 class _YoutubeDownloadState extends State<YoutubeDownload> {
-  CacheService _cacheService = ServiceProvider.get();
+  PlaylistService _playlistService = ServiceProvider.get();
   HttpService _httpService = ServiceProvider.get();
   TokenService _tokenService = ServiceProvider.get();
   final Function(AudioModel path) onMusicDownloaded;
@@ -148,16 +150,12 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
             youtubeUrl: this._downloadYoutubeUrl,
             thumbnailUrl: this._lastRequest.thumbnail);
 
-        if (!_cacheService.content.audios.containsKey(audio.youtubeUrl)) {
-          if (!_cacheService.content.playlists.containsKey("default")) {
-            _cacheService.content.playlists["default"] =
-                PlaylistModel(title: "default", musics: Map());
-          }
-          _cacheService.content.playlists["default"].musics[audio.youtubeUrl] =
-              audio;
-          _cacheService.content.audios[audio.youtubeUrl] = audio;
-          _cacheService.saveCache();
-        }
+        var defaultPlaylist =
+            _playlistService.getPlaylistByName(Common.DEFAULT_PLAYLIST);
+        if (defaultPlaylist == null)
+          defaultPlaylist =
+              _playlistService.createPlaylist(Common.DEFAULT_PLAYLIST);
+        _playlistService.addMusicToPlaylist(defaultPlaylist, audio);
 
         this.onMusicDownloaded(audio);
         setState(() {
@@ -242,7 +240,9 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
       child: Text("Télécharger"),
       onPressed: this._lastRequest != null ||
               this._lastDownload != null ||
-              _cacheService.content.audios.containsKey(this._currentUrl)
+              _playlistService.getMusicFromPlaylist(
+                      Common.DEFAULT_PLAYLIST, this._currentUrl) !=
+                  null
           ? null
           : () async {
               _startDownload();

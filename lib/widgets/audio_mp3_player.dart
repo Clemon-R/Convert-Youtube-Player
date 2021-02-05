@@ -76,10 +76,12 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
 
   _play() async {
     await this._audioPlayer.resume();
+    setState(() {});
   }
 
   _pause() async {
     await this._audioPlayer.pause();
+    setState(() {});
   }
 
   @override

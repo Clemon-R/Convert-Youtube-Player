@@ -1,7 +1,9 @@
 import 'dart:io';
 
+import 'package:convertyoutubeplayer/constant/common.dart';
+import 'package:convertyoutubeplayer/models/cache_models/playlist_model.dart';
 import 'package:convertyoutubeplayer/provider/service_provider.dart';
-import 'package:convertyoutubeplayer/services/cache_service.dart';
+import 'package:convertyoutubeplayer/services/playlist_service.dart';
 import 'package:convertyoutubeplayer/widgets/audio_mp3_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -18,7 +20,7 @@ class MusicsView extends StatefulWidget {
 class _MusicsViewState extends State<MusicsView> {
   static const String TAG = "MusicView";
 
-  CacheService _cacheService = ServiceProvider.get();
+  PlaylistService _playlistService = ServiceProvider.get();
   AudioMp3Player _audioMp3Player;
 
   _MusicsViewState(this._audioMp3Player);
@@ -31,6 +33,9 @@ class _MusicsViewState extends State<MusicsView> {
 
   @override
   Widget build(BuildContext context) {
+    PlaylistModel defaultPlaylist =
+        _playlistService.getPlaylistByName(Common.DEFAULT_PLAYLIST) ??
+            List.empty();
     return Container(
         color: Color.fromRGBO(34, 40, 49, 1),
         child: Column(
@@ -38,9 +43,9 @@ class _MusicsViewState extends State<MusicsView> {
             Expanded(
               child: ListView.builder(
                   shrinkWrap: true,
-                  itemCount: _cacheService.content.audios.length,
+                  itemCount: defaultPlaylist.musics.length,
                   itemBuilder: (context, index) {
-                    var audio = _cacheService.content.audios[index];
+                    var audio = defaultPlaylist.musics[index];
                     return Container(
                       color: Color.fromRGBO(48, 71, 94, 1),
                       height: 60,
@@ -48,11 +53,9 @@ class _MusicsViewState extends State<MusicsView> {
                         children: [
                           FlatButton(
                             padding: EdgeInsets.all(0),
-                            child: audio.thumbnailUrl != null
-                                ? Image.network(
-                                    audio.thumbnailUrl,
-                                  )
-                                : null,
+                            child: Image.network(
+                              audio.thumbnailUrl,
+                            ),
                             onPressed: () {
                               this._audioMp3Player.loadAudio(audio);
                             },
@@ -95,9 +98,9 @@ class _MusicsViewState extends State<MusicsView> {
 
                               if (!await file.exists()) return;
                               await file.delete();
-                              _cacheService.content.audios
-                                  .remove(audio.youtubeUrl);
-                              await _cacheService.saveCache();
+
+                              _playlistService.removeMusicToPlaylist(
+                                  defaultPlaylist, audio.youtubeUrl);
                               setState(() {});
                             },
                           ),
