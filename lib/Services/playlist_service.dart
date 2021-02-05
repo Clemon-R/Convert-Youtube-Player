@@ -20,6 +20,10 @@ class PlaylistService extends BaseService {
     return data.musics[youtubeUrl];
   }
 
+  List<PlaylistModel> getAllPlaylists() {
+    return _cacheService.content.playlists.values.toList(growable: false);
+  }
+
   /// You just to give a [playlistName], [audio]
   /// Return a `bool` on if eitheir it was successfull or not
   bool addMusicToPlaylistByName(String playlistName, AudioModel audio) {
@@ -28,6 +32,7 @@ class PlaylistService extends BaseService {
 
     var data = _cacheService.content.playlists[playlistName];
     data.musics[audio.youtubeUrl] = audio;
+    audio.playlist = data;
     _cacheService.saveCache();
     return true;
   }
@@ -35,6 +40,7 @@ class PlaylistService extends BaseService {
   /// You just to give a [playlist], [audio] and then the playlist will be returned
   PlaylistModel addMusicToPlaylist(PlaylistModel playlist, AudioModel audio) {
     playlist.musics[audio.youtubeUrl] = audio;
+    audio.playlist = playlist;
     _cacheService.saveCache();
     return playlist;
   }

@@ -1,22 +1,19 @@
-import 'package:convertyoutubeplayer/widgets/audio_mp3_player.dart';
+import 'package:convertyoutubeplayer/provider/service_provider.dart';
+import 'package:convertyoutubeplayer/services/player_service.dart';
 import 'package:convertyoutubeplayer/widgets/youtube_download.dart';
 import 'package:flutter/material.dart';
 
 class DownloadView extends StatefulWidget {
-  DownloadView({Key key, this.title, @required this.audioMp3Player})
-      : super(key: key);
-
-  final String title;
-  final AudioMp3Player audioMp3Player;
+  DownloadView({Key key}) : super(key: key);
 
   @override
-  _DownloadViewState createState() => _DownloadViewState(this.audioMp3Player);
+  _DownloadViewState createState() => _DownloadViewState();
 }
 
 class _DownloadViewState extends State<DownloadView> {
-  AudioMp3Player audioMp3Player;
+  PlayerService _playerService = ServiceProvider.get();
 
-  _DownloadViewState(this.audioMp3Player);
+  _DownloadViewState();
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +22,7 @@ class _DownloadViewState extends State<DownloadView> {
         body: Column(
           children: [
             Expanded(child: YoutubeDownload(onMusicDownloaded: (audio) {
-              this.audioMp3Player.loadAudio(audio);
+              this._playerService.changeAudio(audio);
             })),
           ],
         ),

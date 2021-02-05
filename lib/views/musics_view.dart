@@ -1,39 +1,36 @@
 import 'dart:io';
 
 import 'package:convertyoutubeplayer/constant/common.dart';
+import 'package:convertyoutubeplayer/models/cache_models/playlist_model.dart';
 import 'package:convertyoutubeplayer/provider/service_provider.dart';
+import 'package:convertyoutubeplayer/services/player_service.dart';
 import 'package:convertyoutubeplayer/services/playlist_service.dart';
-import 'package:convertyoutubeplayer/widgets/audio_mp3_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class MusicsView extends StatefulWidget {
-  MusicsView({@required this.audioMp3Player, Key key}) : super(key: key);
+  MusicsView({Key key, this.playlist}) : super(key: key);
 
-  final AudioMp3Player audioMp3Player;
+  final PlaylistModel playlist;
 
   @override
-  _MusicsViewState createState() => _MusicsViewState(this.audioMp3Player);
+  _MusicsViewState createState() => _MusicsViewState(this.playlist);
 }
 
 class _MusicsViewState extends State<MusicsView> {
-  static const String TAG = "MusicView";
-
   PlaylistService _playlistService = ServiceProvider.get();
-  AudioMp3Player _audioMp3Player;
+  PlayerService _playerService = ServiceProvider.get();
 
-  _MusicsViewState(this._audioMp3Player);
+  PlaylistModel _playlist;
 
-  @override
-  void initState() {
-    print("$TAG: Test");
-    super.initState();
-  }
+  _MusicsViewState(this._playlist);
 
   @override
   Widget build(BuildContext context) {
-    var defaultPlaylist =
-        _playlistService.getPlaylistByName(Common.DEFAULT_PLAYLIST);
+    var defaultPlaylist = this._playlist;
+    if (this._playlist == null)
+      defaultPlaylist =
+          _playlistService.getPlaylistByName(Common.DEFAULT_PLAYLIST);
     var musics = defaultPlaylist?.musics ?? Map();
     return Container(
         color: Color.fromRGBO(34, 40, 49, 1),
@@ -56,7 +53,7 @@ class _MusicsViewState extends State<MusicsView> {
                               audio.thumbnailUrl,
                             ),
                             onPressed: () {
-                              this._audioMp3Player.loadAudio(audio);
+                              this._playerService.changeAudio(audio);
                             },
                           ),
                           Expanded(
@@ -81,12 +78,12 @@ class _MusicsViewState extends State<MusicsView> {
                                 ),
                               ),
                               onPressed: () {
-                                this._audioMp3Player.loadAudio(audio);
+                                this._playerService.changeAudio(audio);
                               },
                             ),
                           ),
                           FlatButton(
-                            padding: EdgeInsets.all(0),
+                            padding: const EdgeInsets.all(0),
                             minWidth: 16,
                             child: SvgPicture.asset(
                               "assets/delete-24px.svg",

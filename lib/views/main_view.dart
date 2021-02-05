@@ -2,6 +2,7 @@ import 'package:convertyoutubeplayer/views/download_view.dart';
 import 'package:convertyoutubeplayer/views/musics_view.dart';
 import 'package:convertyoutubeplayer/views/playlist_view.dart';
 import 'package:convertyoutubeplayer/views/settings_view.dart';
+import 'package:convertyoutubeplayer/widgets/audio_header.dart';
 import 'package:convertyoutubeplayer/widgets/audio_mp3_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -67,15 +68,16 @@ class _MainViewState extends State<MainView> {
                 child: IndexedStack(
                   index: this._currentIndex,
                   children: [
-                    MusicsView(
-                      audioMp3Player: this._audioPlayer,
+                    Container(
+                      child: Column(
+                        children: [
+                          AudioHeader(),
+                          Expanded(child: MusicsView()),
+                        ],
+                      ),
                     ),
-                    PlaylistView(
-                      audioMp3Player: this._audioPlayer,
-                    ),
-                    DownloadView(
-                      audioMp3Player: this._audioPlayer,
-                    ),
+                    PlaylistView(),
+                    DownloadView(),
                     SettingsView(),
                   ],
                 ),

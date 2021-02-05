@@ -50,6 +50,7 @@ class _SettingsViewState extends State<SettingsView> {
     _cacheService.content.playlists.forEach((key, value) {
       value.musics.clear();
     });
+    _cacheService.content.playlists.clear();
     await _cacheService.saveCache();
     setState(() {
       this._isBusy = false;
@@ -85,7 +86,8 @@ class _SettingsViewState extends State<SettingsView> {
               children: [
                 TableRow(children: [
                   TableCell(
-                    child: Text("Vider le cache sans supprimer les musiques",
+                    child: Text(
+                        "Vider le cache sans supprimer les musiques/playlist",
                         style: TextStyle(color: Colors.white, fontSize: 14)),
                     verticalAlignment: TableCellVerticalAlignment.middle,
                   ),
@@ -100,7 +102,8 @@ class _SettingsViewState extends State<SettingsView> {
                 ]),
                 TableRow(children: [
                   TableCell(
-                    child: Text("Vider le cache sans supprimer les playlist",
+                    child: Text(
+                        "Vider le cache sans supprimer les musiques/playlist",
                         style: TextStyle(color: Colors.white, fontSize: 14)),
                     verticalAlignment: TableCellVerticalAlignment.middle,
                   ),

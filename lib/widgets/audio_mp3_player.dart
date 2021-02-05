@@ -1,5 +1,8 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:convertyoutubeplayer/models/cache_models/audio_model.dart';
+import 'package:convertyoutubeplayer/models/cache_models/playlist_model.dart';
+import 'package:convertyoutubeplayer/provider/service_provider.dart';
+import 'package:convertyoutubeplayer/services/player_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:core';
 
@@ -11,26 +14,16 @@ class AudioMp3Player extends StatefulWidget {
   // values (in this case nothing) provided by the parent and used
   // by the build  method of the State. Fields in a Widget
   // subclass are always marked "final".
-  _AudioMp3PlayerState currentState;
-
   final String title;
 
   AudioMp3Player({Key key, this.title}) : super(key: key);
 
-  loadAudio(AudioModel audio) {
-    if (this.currentState == null)
-      throw Exception("La vue n'a pas été générer");
-    this.currentState.loadAudio(audio);
-  }
-
   @override
-  _AudioMp3PlayerState createState() {
-    this.currentState = _AudioMp3PlayerState();
-    return this.currentState;
-  }
+  _AudioMp3PlayerState createState() => _AudioMp3PlayerState();
 }
 
 class _AudioMp3PlayerState extends State<AudioMp3Player> {
+  PlayerService _playerService = ServiceProvider.get();
   final _audioPlayer = AudioPlayer();
 
   String _leftDuration = "0:00";
@@ -38,23 +31,17 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
   String _duration = "0:00";
   double _progress = 0;
 
-  //String _msg;
-  AudioModel currentAudio;
-  List<AudioModel> playlist = List.empty();
-
-  _AudioMp3PlayerState({this.currentAudio, this.playlist});
-
-  loadAudio(AudioModel audio) {
-    setState(() {
-      this.currentAudio = audio;
-      this._audioPlayer.setUrl(audio.pathFile, isLocal: true);
-    });
-  }
+  AudioModel _currentAudio;
+  PlaylistModel _playlist;
+  var _isPlaying = false;
 
   @override
   void initState() {
-    super.initState();
-
+    this._playerService.addListenerOnAudioChange(this._onAudioChange);
+    this
+        ._playerService
+        .addListenerOnAudioStatusChange(this._onAudioStatusChange);
+    this._playerService.addListenerStartOrStopAudio(_onStartOrStopAudio);
     this._audioPlayer.onDurationChanged.listen((event) {
       setState(() {
         this._maxProgress = event.inSeconds.toDouble();
@@ -72,16 +59,62 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
         this._progress = event.inSeconds.toDouble();
       });
     });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    this._playerService.removeListenerOnAudioChange(this._onAudioChange);
+    this
+        ._playerService
+        .removeListenerOnAudioStatusChange(this._onAudioStatusChange);
+    this._playerService.removeListenerStartOrStopAudio(_onStartOrStopAudio);
+    super.dispose();
+  }
+
+  _onStartOrStopAudio(bool toStart) {
+    if (toStart)
+      this._play();
+    else
+      this._pause();
+  }
+
+  _onAudioChange(AudioModel audio) {
+    setState(() {
+      this._currentAudio = audio;
+      this._audioPlayer.setUrl(audio.pathFile, isLocal: true);
+    });
+  }
+
+  _onAudioStatusChange(AudioModel audio, AudioPlayerState state) {
+    setState(() {
+      switch (state) {
+        case AudioPlayerState.PLAYING:
+          this._isPlaying = true;
+          break;
+        case AudioPlayerState.COMPLETED:
+        case AudioPlayerState.PAUSED:
+        case AudioPlayerState.STOPPED:
+          this._isPlaying = false;
+          break;
+        default:
+          break;
+      }
+    });
   }
 
   _play() async {
     await this._audioPlayer.resume();
-    setState(() {});
+    this
+        ._playerService
+        .changeAudioStatus(this._currentAudio, this._audioPlayer.state);
   }
 
   _pause() async {
     await this._audioPlayer.pause();
-    setState(() {});
+    this
+        ._playerService
+        .changeAudioStatus(this._currentAudio, this._audioPlayer.state);
   }
 
   @override
@@ -126,10 +159,10 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
                   disabledColor: Colors.transparent,
                   minWidth: 32,
                   child: SvgPicture.asset(
-                    this._audioPlayer.state == AudioPlayerState.PLAYING
+                    this._isPlaying
                         ? "assets/pause-symbol.svg"
                         : "assets/play-button-arrowhead.svg",
-                    color: this.currentAudio == null
+                    color: this._currentAudio == null
                         ? Color.fromRGBO(221, 221, 221, 1)
                         : Colors.white,
                     semanticsLabel: 'up arrow',
@@ -139,7 +172,7 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
                       child: const CircularProgressIndicator(),
                     ),
                   ),
-                  onPressed: this.currentAudio == null
+                  onPressed: this._currentAudio == null
                       ? null
                       : () {
                           if (this._audioPlayer.state !=
@@ -156,9 +189,9 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(this.currentAudio?.title ?? "Title",
+                      Text(this._currentAudio?.title ?? "Title",
                           style: TextStyle(color: Colors.white)),
-                      Text(this.currentAudio?.author ?? "Autheur",
+                      Text(this._currentAudio?.author ?? "Autheur",
                           style: TextStyle(color: Colors.white))
                     ],
                   ),
