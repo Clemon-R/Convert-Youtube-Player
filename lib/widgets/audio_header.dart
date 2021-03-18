@@ -18,6 +18,11 @@ class AudioHeader extends StatefulWidget {
 class _AudioHeaderState extends State<AudioHeader> {
   PlayerService _playerService = ServiceProvider.get();
 
+  String _leftDuration = "0:00";
+  double _maxProgress = 0;
+  String _duration = "0:00";
+  double _progress = 0;
+
   AudioModel _currentAudio;
   var _isPlaying = false;
 
@@ -27,6 +32,12 @@ class _AudioHeaderState extends State<AudioHeader> {
     this
         ._playerService
         .addListenerOnAudioStatusChange(this._onAudioStatusChange);
+    this
+        ._playerService
+        .addListenerOnAudioDurationChange(this._onAudioDurationChange);
+    this
+        ._playerService
+        .addListenerOnAudioPositionChange(this._onAudioPositionChange);
     super.initState();
   }
 
@@ -36,7 +47,32 @@ class _AudioHeaderState extends State<AudioHeader> {
     this
         ._playerService
         .removeListenerOnAudioStatusChange(this._onAudioStatusChange);
+    this
+        ._playerService
+        .removeListenerOnAudioDurationChange(this._onAudioDurationChange);
+    this
+        ._playerService
+        .removeListenerOnAudioPositionChange(this._onAudioPositionChange);
     super.dispose();
+  }
+
+  _onAudioPositionChange(dynamic event) {
+    setState(() {
+      var seconds = event.inSeconds % 60;
+      var left = this._maxProgress - event.inSeconds;
+      var leftseconds = left.toInt() % 60;
+      this._duration =
+          "${(event.inSeconds / 60).floor()}:${seconds <= 9 ? '0' : ''}$seconds";
+      this._leftDuration =
+          "${(left / 60).floor()}:${leftseconds <= 9 ? '0' : ''}$leftseconds";
+      this._progress = event.inSeconds.toDouble();
+    });
+  }
+
+  _onAudioDurationChange(double seconds) {
+    setState(() {
+      this._maxProgress = seconds;
+    });
   }
 
   _onChangeAudio(AudioModel audio) {
@@ -71,101 +107,127 @@ class _AudioHeaderState extends State<AudioHeader> {
           bottom: BorderSide(width: 1.0, color: Color.fromRGBO(34, 40, 49, 1)),
         ),
       ),
-      height: 128,
-      child: Row(
+      height: 148,
+      child: Column(
         children: [
-          FlatButton(
-            padding: const EdgeInsets.all(0),
-            onPressed: () {
-              if (this._isPlaying)
-                this._playerService.pauseAudio();
-              else
-                this._playerService.playAudio();
-            },
-            child: Stack(
+          Container(
+            height: 15,
+            child: SliderTheme(
+              data: SliderThemeData(
+                  activeTrackColor: Color.fromRGBO(240, 84, 84, 1),
+                  inactiveTrackColor: Color.fromRGBO(240, 84, 84, 0.5),
+                  activeTickMarkColor: Colors.transparent,
+                  inactiveTickMarkColor: Colors.transparent,
+                  trackShape: RectangularSliderTrackShape(),
+                  trackHeight: 15.0,
+                  thumbColor: Colors.redAccent,
+                  thumbShape: RoundSliderThumbShape(enabledThumbRadius: 7.5),
+                  overlayColor: Colors.redAccent,
+                  overlayShape: RoundSliderThumbShape(enabledThumbRadius: 7.5)),
+              child: Slider(
+                value: _progress,
+                min: 0,
+                max: this._maxProgress,
+                label: this._duration.toString(),
+                divisions: this._maxProgress.toInt() > 0
+                    ? this._maxProgress.toInt()
+                    : 1,
+                onChanged: (value) {
+                  setState(() {
+                    this._progress = value;
+                  });
+                  this._playerService.changeSeek(value.toInt());
+                },
+              ),
+            ),
+          ),
+          Container(
+            height: 132,
+            child: Row(
               children: [
                 Container(
                   color: Colors.white,
                   child: this._currentAudio != null
                       ? Image.network(
                           _currentAudio.thumbnailUrl,
-                          width: 128,
-                          height: 128,
+                          width: 132,
+                          height: 132,
                         )
                       : SvgPicture.asset(
                           "assets/album-24px.svg",
                           color: Colors.black,
-                          width: 128,
-                          height: 128,
+                          width: 132,
+                          height: 132,
                         ),
                 ),
-                Container(
-                  width: 128,
-                  height: 128,
-                  child: Stack(
-                    children: [
-                      Center(
-                        child: SvgPicture.asset(
-                          this._isPlaying
-                              ? "assets/pause-symbol.svg"
-                              : "assets/play-button-arrowhead.svg",
-                          color: Colors.white,
-                          height: 38,
-                        ),
-                      ),
-                      Center(
-                        child: SvgPicture.asset(
-                          this._isPlaying
-                              ? "assets/pause-symbol.svg"
-                              : "assets/play-button-arrowhead.svg",
-                          color: Colors.black,
-                          height: 32,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: SizedBox.expand(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: SizedBox.expand(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(this._currentAudio?.title ?? "Titre",
-                              style: TextStyle(
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(this._currentAudio?.title ?? "Titre",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                    )),
+                                Text("Autheur",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                    )),
+                                Text(
+                                    this._currentAudio?.playlist?.title ??
+                                        "Playlist",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                    )),
+                              ],
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              SvgPicture.asset(
+                                "assets/skip_previous-24px.svg",
                                 color: Colors.white,
-                                fontSize: 16,
-                              )),
-                          Text("Autheur",
-                              style: TextStyle(
+                                height: 32,
+                              ),
+                              FlatButton(
+                                padding: const EdgeInsets.all(0),
+                                minWidth: 24,
+                                onPressed: () {
+                                  if (this._isPlaying)
+                                    this._playerService.pause();
+                                  else
+                                    this._playerService.play();
+                                },
+                                child: SvgPicture.asset(
+                                  this._isPlaying
+                                      ? "assets/pause-symbol.svg"
+                                      : "assets/play-button-arrowhead.svg",
+                                  color: Colors.white,
+                                  height: 24,
+                                ),
+                              ),
+                              SvgPicture.asset(
+                                "assets/skip_next-24px.svg",
                                 color: Colors.white,
-                                fontSize: 12,
-                              )),
-                          Text(
-                              this._currentAudio?.playlist?.title ?? "Playlist",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                              )),
+                                height: 32,
+                              ),
+                            ],
+                          )
                         ],
                       ),
                     ),
-                    SvgPicture.asset(
-                      "assets/play-button-arrowhead.svg",
-                      color: Colors.white,
-                      height: 32,
-                    )
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ],

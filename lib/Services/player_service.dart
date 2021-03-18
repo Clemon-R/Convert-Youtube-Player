@@ -7,54 +7,92 @@ class PlayerService extends BaseService {
       List.empty(growable: true);
   List<void Function(AudioModel audio, AudioPlayerState state)>
       _onAudioStatusChange = List.empty(growable: true);
-  void Function(bool toPlay) _startOrStopAudio;
+  List<void Function(double seconds)> _onAudioDurationChange =
+      List.empty(growable: true);
+  List<void Function(dynamic event)> _onAudioPositionChange =
+      List.empty(growable: true);
 
-  AudioModel _currentAudio;
+  AudioModel _currentAudio = null;
+  final _audioPlayer = AudioPlayer();
 
-  void playAudio() {
-    this._startOrStopAudio?.call(true);
+  PlayerService() {
+    _onAudioChange.add((audio) {
+      this._audioPlayer.setUrl(audio.pathFile, isLocal: true);
+    });
+    this._audioPlayer.onDurationChanged.listen((event) {
+      this
+          ._onAudioDurationChange
+          .forEach((handler) => handler(event.inSeconds.toDouble()));
+    });
+    this._audioPlayer.onAudioPositionChanged.listen((event) {
+      this._onAudioPositionChange.forEach((handler) => handler(event));
+    });
   }
 
-  void pauseAudio() {
-    this._startOrStopAudio?.call(false);
-  }
-
-  void changeAudio(AudioModel audio) {
+  changeAudio(AudioModel audio) {
     this._currentAudio = audio;
     this._onAudioChange.forEach((handler) => handler(audio));
   }
 
-  void changeAudioStatus(AudioModel audio, AudioPlayerState state) {
+  changeAudioStatus(AudioModel audio, AudioPlayerState state) {
     this._onAudioStatusChange.forEach((handler) => handler(audio, state));
+  }
+
+  changeSeek(int seconds) {
+    this._audioPlayer.seek(Duration(seconds: seconds));
+  }
+
+  play() async {
+    if (this._currentAudio == null) return;
+    await this._audioPlayer.resume();
+    this.changeAudioStatus(this._currentAudio, this._audioPlayer.state);
+  }
+
+  pause() async {
+    if (this._currentAudio == null) return;
+    await this._audioPlayer.pause();
+    this.changeAudioStatus(this._currentAudio, this._audioPlayer.state);
   }
 
   AudioModel getCurrentAudio() {
     return this._currentAudio;
   }
 
-  void addListenerStartOrStopAudio(void Function(bool toPlay) handler) {
-    if (_startOrStopAudio != handler) this._startOrStopAudio = handler;
+  addListenerOnAudioPositionChange(void Function(dynamic event) handler) {
+    if (!_onAudioPositionChange.contains(handler))
+      this._onAudioPositionChange.add(handler);
   }
 
-  void removeListenerStartOrStopAudio(void Function(bool toPlay) handler) {
-    if (_startOrStopAudio == handler) this._startOrStopAudio = handler;
+  removeListenerOnAudioPositionChange(void Function(dynamic event) handler) {
+    if (_onAudioPositionChange.contains(handler))
+      this._onAudioPositionChange.remove(handler);
   }
 
-  void addListenerOnAudioChange(void Function(AudioModel audio) handler) {
+  addListenerOnAudioDurationChange(void Function(double seconds) handler) {
+    if (!_onAudioDurationChange.contains(handler))
+      this._onAudioDurationChange.add(handler);
+  }
+
+  removeListenerOnAudioDurationChange(void Function(double seconds) handler) {
+    if (_onAudioDurationChange.contains(handler))
+      this._onAudioDurationChange.remove(handler);
+  }
+
+  addListenerOnAudioChange(void Function(AudioModel audio) handler) {
     if (!_onAudioChange.contains(handler)) this._onAudioChange.add(handler);
   }
 
-  void removeListenerOnAudioChange(void Function(AudioModel audio) handler) {
+  removeListenerOnAudioChange(void Function(AudioModel audio) handler) {
     if (_onAudioChange.contains(handler)) this._onAudioChange.remove(handler);
   }
 
-  void addListenerOnAudioStatusChange(
+  addListenerOnAudioStatusChange(
       void Function(AudioModel audio, AudioPlayerState state) handler) {
     if (!_onAudioStatusChange.contains(handler))
       this._onAudioStatusChange.add(handler);
   }
 
-  void removeListenerOnAudioStatusChange(
+  removeListenerOnAudioStatusChange(
       void Function(AudioModel audio, AudioPlayerState state) handler) {
     if (_onAudioStatusChange.contains(handler))
       this._onAudioStatusChange.remove(handler);

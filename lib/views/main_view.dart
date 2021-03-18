@@ -17,7 +17,7 @@ class MainView extends StatefulWidget {
 }
 
 class _MainViewState extends State<MainView> {
-  AudioMp3Player _audioPlayer;
+  AudioHeader _audioPlayer;
   int _currentIndex = 1;
 
   Widget _buildIcon(Widget icon, String text, int index) => Container(
@@ -58,7 +58,7 @@ class _MainViewState extends State<MainView> {
 
   @override
   Widget build(BuildContext context) {
-    if (this._audioPlayer == null) this._audioPlayer = AudioMp3Player();
+    if (this._audioPlayer == null) this._audioPlayer = AudioHeader();
     return SafeArea(
       child: Scaffold(
         body: Column(
@@ -71,7 +71,7 @@ class _MainViewState extends State<MainView> {
                     Container(
                       child: Column(
                         children: [
-                          AudioHeader(),
+                          /*AudioHeader(),*/
                           Expanded(child: MusicsView()),
                         ],
                       ),

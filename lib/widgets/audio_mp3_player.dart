@@ -24,7 +24,6 @@ class AudioMp3Player extends StatefulWidget {
 
 class _AudioMp3PlayerState extends State<AudioMp3Player> {
   PlayerService _playerService = ServiceProvider.get();
-  final _audioPlayer = AudioPlayer();
 
   String _leftDuration = "0:00";
   double _maxProgress = 0;
@@ -41,24 +40,12 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
     this
         ._playerService
         .addListenerOnAudioStatusChange(this._onAudioStatusChange);
-    this._playerService.addListenerStartOrStopAudio(_onStartOrStopAudio);
-    this._audioPlayer.onDurationChanged.listen((event) {
-      setState(() {
-        this._maxProgress = event.inSeconds.toDouble();
-      });
-    });
-    this._audioPlayer.onAudioPositionChanged.listen((event) {
-      setState(() {
-        var seconds = event.inSeconds % 60;
-        var left = this._maxProgress - event.inSeconds;
-        var leftseconds = left.toInt() % 60;
-        this._duration =
-            "${(event.inSeconds / 60).floor()}:${seconds <= 9 ? '0' : ''}$seconds";
-        this._leftDuration =
-            "${(left / 60).floor()}:${leftseconds <= 9 ? '0' : ''}$leftseconds";
-        this._progress = event.inSeconds.toDouble();
-      });
-    });
+    this
+        ._playerService
+        .addListenerOnAudioDurationChange(this._onAudioDurationChange);
+    this
+        ._playerService
+        .addListenerOnAudioPositionChange(this._onAudioPositionChange);
     super.initState();
   }
 
@@ -68,21 +55,37 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
     this
         ._playerService
         .removeListenerOnAudioStatusChange(this._onAudioStatusChange);
-    this._playerService.removeListenerStartOrStopAudio(_onStartOrStopAudio);
+    this
+        ._playerService
+        .removeListenerOnAudioDurationChange(this._onAudioDurationChange);
+    this
+        ._playerService
+        .removeListenerOnAudioPositionChange(this._onAudioPositionChange);
     super.dispose();
   }
 
-  _onStartOrStopAudio(bool toStart) {
-    if (toStart)
-      this._play();
-    else
-      this._pause();
+  _onAudioPositionChange(dynamic event) {
+    setState(() {
+      var seconds = event.inSeconds % 60;
+      var left = this._maxProgress - event.inSeconds;
+      var leftseconds = left.toInt() % 60;
+      this._duration =
+          "${(event.inSeconds / 60).floor()}:${seconds <= 9 ? '0' : ''}$seconds";
+      this._leftDuration =
+          "${(left / 60).floor()}:${leftseconds <= 9 ? '0' : ''}$leftseconds";
+      this._progress = event.inSeconds.toDouble();
+    });
+  }
+
+  _onAudioDurationChange(double seconds) {
+    setState(() {
+      this._maxProgress = seconds;
+    });
   }
 
   _onAudioChange(AudioModel audio) {
     setState(() {
       this._currentAudio = audio;
-      this._audioPlayer.setUrl(audio.pathFile, isLocal: true);
     });
   }
 
@@ -101,20 +104,6 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
           break;
       }
     });
-  }
-
-  _play() async {
-    await this._audioPlayer.resume();
-    this
-        ._playerService
-        .changeAudioStatus(this._currentAudio, this._audioPlayer.state);
-  }
-
-  _pause() async {
-    await this._audioPlayer.pause();
-    this
-        ._playerService
-        .changeAudioStatus(this._currentAudio, this._audioPlayer.state);
   }
 
   @override
@@ -147,7 +136,7 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
                 setState(() {
                   this._progress = value;
                 });
-                this._audioPlayer.seek(Duration(seconds: value.toInt()));
+                this._playerService.changeSeek(value.toInt());
               },
             ),
           ),
@@ -175,11 +164,10 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
                   onPressed: this._currentAudio == null
                       ? null
                       : () {
-                          if (this._audioPlayer.state !=
-                              AudioPlayerState.PLAYING)
-                            this._play();
+                          if (!this._isPlaying)
+                            this._playerService.play();
                           else
-                            this._pause();
+                            this._playerService.pause();
                         }),
               Expanded(
                 child: Padding(

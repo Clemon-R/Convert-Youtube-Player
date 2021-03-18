@@ -49,7 +49,9 @@ class CacheService extends BaseService {
     var file = File(p.join(this._homeDirectory.path, this._fileName));
     if (await file.exists()) {
       print("$TAG: Removing old cache");
-      await file.delete();
+      try {
+        await file.delete();
+      } catch (FileSystemException) {}
     }
     var content = this._content.toJson();
     print("$TAG: Json content\n$content");

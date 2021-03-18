@@ -165,7 +165,7 @@ class _PlaylistViewState extends State<PlaylistView> {
     return Container(
       child: Column(
         children: [
-          AudioHeader(),
+          /*AudioHeader(),*/
           Expanded(
             child: Container(
               child: IndexedStack(
