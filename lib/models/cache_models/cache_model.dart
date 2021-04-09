@@ -1,7 +1,7 @@
 import 'package:convertyoutubeplayer/models/cache_models/playlist_model.dart';
 
 class CacheModel {
-  Map<String, PlaylistModel> playlists = Map();
+  Map<String?, PlaylistModel?> playlists = Map();
 
   CacheModel();
 
@@ -17,7 +17,7 @@ class CacheModel {
 
   Map<String, dynamic> toJson() => {
         'playlists': playlists.values
-            .map((playlist) => playlist.toJson())
+            .map((playlist) => playlist!.toJson())
             .toList(growable: false)
       };
 }

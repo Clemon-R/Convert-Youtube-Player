@@ -1,8 +1,8 @@
 import 'package:convertyoutubeplayer/models/cache_models/audio_model.dart';
 
 class PlaylistModel {
-  String title;
-  Map<String, AudioModel> musics;
+  String? title;
+  Map<String?, AudioModel?>? musics;
 
   PlaylistModel({this.title, this.musics});
 
@@ -20,6 +20,6 @@ class PlaylistModel {
   Map<String, dynamic> toJson() => {
         'title': title,
         'musics':
-            musics.values.map((audio) => audio.toJson()).toList(growable: false)
+            musics!.values.map((audio) => audio!.toJson()).toList(growable: false)
       };
 }

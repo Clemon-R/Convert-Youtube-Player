@@ -1,24 +1,24 @@
 import 'package:convertyoutubeplayer/models/cache_models/playlist_model.dart';
-import 'package:convertyoutubeplayer/provider/service_provider.dart';
+import 'package:convertyoutubeplayer/provider/services_provider.dart';
 import 'package:convertyoutubeplayer/services/player_service.dart';
 import 'package:convertyoutubeplayer/services/playlist_service.dart';
 import 'package:convertyoutubeplayer/views/musics_view.dart';
-import 'package:convertyoutubeplayer/widgets/audio_header.dart';
+import 'package:convertyoutubeplayer/components/audio_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class PlaylistView extends StatefulWidget {
-  PlaylistView({Key key}) : super(key: key);
+  PlaylistView({Key? key}) : super(key: key);
 
   @override
   _PlaylistViewState createState() => _PlaylistViewState();
 }
 
 class _PlaylistViewState extends State<PlaylistView> {
-  PlaylistService _playlistService = ServiceProvider.get();
-  PlayerService _playerService = ServiceProvider.get();
+  PlaylistService _playlistService = ServicesProvider.get();
+  PlayerService _playerService = ServicesProvider.get();
 
-  PlaylistModel _currentPlaylist = null;
+  PlaylistModel? _currentPlaylist = null;
 
   _PlaylistViewState();
 
@@ -37,7 +37,7 @@ class _PlaylistViewState extends State<PlaylistView> {
   Widget _playlistListView() {
     var playlists = _playlistService
         .getAllPlaylists()
-        .where((playlist) => playlist.musics.length > 0)
+        .where((playlist) => playlist!.musics!.length > 0)
         .toList();
     return Container(
         color: Color.fromRGBO(34, 40, 49, 1),
@@ -48,36 +48,40 @@ class _PlaylistViewState extends State<PlaylistView> {
                   shrinkWrap: true,
                   itemCount: playlists.length,
                   itemBuilder: (context, index) {
-                    var playlist = playlists[index];
-                    var firstAudio = playlist.musics.values.first;
+                    var playlist = playlists[index]!;
+                    var firstAudio = playlist.musics!.values.first!;
                     return Container(
                       color: Color.fromRGBO(48, 71, 94, 1),
                       height: 60,
                       child: Row(
                         children: [
-                          FlatButton(
-                            padding: EdgeInsets.all(0),
+                          TextButton(
+                            style: ButtonStyle(
+                                padding: MaterialStateProperty.all(
+                                    const EdgeInsets.all(0))),
                             child: Image.network(
-                              firstAudio.thumbnailUrl,
+                              firstAudio.thumbnailUrl!,
                             ),
                             onPressed: () {
                               this._goToPlaylist(playlist);
                             },
                           ),
                           Expanded(
-                            child: FlatButton(
-                              padding: EdgeInsets.all(8),
+                            child: TextButton(
+                              style: ButtonStyle(
+                                  padding: MaterialStateProperty.all(
+                                      const EdgeInsets.all(0))),
                               child: SizedBox.expand(
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(playlist?.title ?? "Titre",
+                                    Text(playlist.title ?? "Titre",
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 12,
                                         )),
-                                    Text("${playlist.musics.length} Musiques",
+                                    Text("${playlist.musics!.length} Musiques",
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 10,
@@ -90,9 +94,12 @@ class _PlaylistViewState extends State<PlaylistView> {
                               },
                             ),
                           ),
-                          FlatButton(
-                            padding: EdgeInsets.all(0),
-                            minWidth: 16,
+                          TextButton(
+                            style: ButtonStyle(
+                                padding: MaterialStateProperty.all(
+                                    const EdgeInsets.all(0)),
+                                minimumSize:
+                                    MaterialStateProperty.all(Size(16, 16))),
                             child: SvgPicture.asset(
                               "assets/delete-24px.svg",
                               color: Colors.white,

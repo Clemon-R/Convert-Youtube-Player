@@ -1,23 +1,23 @@
 import 'dart:io';
 
 import 'package:convertyoutubeplayer/constant/common.dart';
-import 'package:convertyoutubeplayer/provider/service_provider.dart';
+import 'package:convertyoutubeplayer/provider/services_provider.dart';
 import 'package:convertyoutubeplayer/services/cache_service.dart';
 import 'package:flutter/material.dart';
 
 class SettingsView extends StatefulWidget {
   static const String TAG = "CacheService";
 
-  SettingsView({Key key, this.title}) : super(key: key);
+  SettingsView({Key? key, this.title}) : super(key: key);
 
-  final String title;
+  final String? title;
 
   @override
   _SettingsViewState createState() => _SettingsViewState();
 }
 
 class _SettingsViewState extends State<SettingsView> {
-  CacheService _cacheService = ServiceProvider.get();
+  CacheService _cacheService = ServicesProvider.get();
   bool _isBusy = false;
 
   _deleteAllAudiosFile() async {
@@ -27,10 +27,10 @@ class _SettingsViewState extends State<SettingsView> {
     });
     var musics = _cacheService
             .content.playlists[Common.DEFAULT_PLAYLIST]?.musics?.values
-            ?.toList() ??
+            .toList() ??
         List.empty();
     for (var audio in musics) {
-      var file = File(audio.pathFile);
+      var file = File(audio!.pathFile!);
 
       if (!await file.exists()) continue;
       print("${SettingsView.TAG}: Deleting ${audio.title}...");
@@ -48,7 +48,7 @@ class _SettingsViewState extends State<SettingsView> {
       this._isBusy = true;
     });
     _cacheService.content.playlists.forEach((key, value) {
-      value.musics.clear();
+      value!.musics!.clear();
     });
     _cacheService.content.playlists.clear();
     await _cacheService.saveCache();
@@ -92,13 +92,15 @@ class _SettingsViewState extends State<SettingsView> {
                     verticalAlignment: TableCellVerticalAlignment.middle,
                   ),
                   TableCell(
-                      child: FlatButton(
+                      child: TextButton(
+                          style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all(
+                                  Color.fromRGBO(240, 84, 84, 1))),
                           onPressed: () async {
                             await this._deleteAllAudiosAndPlaylist();
                           },
-                          textColor: Colors.white,
-                          color: Color.fromRGBO(240, 84, 84, 1),
-                          child: Text("Vider le cache"))),
+                          child: Text("Vider le cache",
+                              style: TextStyle(color: Colors.white)))),
                 ]),
                 TableRow(children: [
                   TableCell(
@@ -108,13 +110,16 @@ class _SettingsViewState extends State<SettingsView> {
                     verticalAlignment: TableCellVerticalAlignment.middle,
                   ),
                   TableCell(
-                      child: FlatButton(
-                          onPressed: () async {
-                            await this._deleteAllAudiosFile();
-                          },
-                          textColor: Colors.white,
-                          color: Color.fromRGBO(240, 84, 84, 1),
-                          child: Text("Vider le cache"))),
+                    child: TextButton(
+                        onPressed: () async {
+                          await this._deleteAllAudiosFile();
+                        },
+                        style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(
+                                Color.fromRGBO(240, 84, 84, 1))),
+                        child: Text("Vider le cache",
+                            style: TextStyle(color: Colors.white))),
+                  ),
                 ]),
                 TableRow(children: [
                   TableCell(
@@ -123,13 +128,16 @@ class _SettingsViewState extends State<SettingsView> {
                     verticalAlignment: TableCellVerticalAlignment.middle,
                   ),
                   TableCell(
-                      child: FlatButton(
-                          onPressed: () async {
-                            await this._deleteEverythingFromTheCache();
-                          },
-                          textColor: Colors.white,
-                          color: Color.fromRGBO(240, 84, 84, 1),
-                          child: Text("Vider le cache"))),
+                    child: TextButton(
+                        onPressed: () async {
+                          await this._deleteEverythingFromTheCache();
+                        },
+                        style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(
+                                Color.fromRGBO(240, 84, 84, 1))),
+                        child: Text("Vider le cache",
+                            style: TextStyle(color: Colors.white))),
+                  ),
                 ]),
               ],
             ),

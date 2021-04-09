@@ -1,13 +1,13 @@
 import 'package:convertyoutubeplayer/models/cache_models/playlist_model.dart';
 
 class AudioModel {
-  String pathFile;
-  String title;
-  String author;
-  String youtubeUrl;
-  String thumbnailUrl;
+  String? pathFile;
+  String? title;
+  String? author;
+  String? youtubeUrl;
+  String? thumbnailUrl;
 
-  PlaylistModel playlist;
+  PlaylistModel? playlist;
 
   AudioModel(
       {this.pathFile,

@@ -1,17 +1,17 @@
-import 'package:convertyoutubeplayer/services/base_service.dart';
+import 'package:convertyoutubeplayer/services/iservice.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-class TokenService extends BaseService {
+class TokenService extends IService {
   static const String TAG = "TokenService";
 
-  WebViewController _webViewController;
-  String _token;
-  String _xsrfToken;
+  WebViewController? _webViewController;
+  String? _token;
+  String? _xsrfToken;
   bool _initiated = false;
 
-  WebViewController get webViewController => this._webViewController;
-  String get token => this._token;
-  String get xsrfToken => this._xsrfToken;
+  WebViewController? get webViewController => this._webViewController;
+  String? get token => this._token;
+  String? get xsrfToken => this._xsrfToken;
   bool get initiated => this._initiated;
 
   void setController(WebViewController controller) {
@@ -26,17 +26,17 @@ class TokenService extends BaseService {
     print("$TAG: Initied");
   }
 
-  Future<String> _getXsrfToken() async {
+  Future<String?> _getXsrfToken() async {
     if (this._webViewController == null) {
       print("$TAG(ERROR): WebViewController not set");
       return "";
     }
     final String cookies =
-        await this._webViewController.evaluateJavascript('document.cookie');
+        await this._webViewController!.evaluateJavascript('document.cookie');
     RegExp exp = new RegExp(r"XSRF-TOKEN=([a-zA-Z0-9]+)");
 
     Iterable<Match> matches = exp.allMatches(cookies);
-    if (matches == null) {
+    if (matches.isEmpty) {
       print("$TAG(ERROR): XsrfToken not found");
       return null;
     } else {
@@ -45,17 +45,17 @@ class TokenService extends BaseService {
     }
   }
 
-  Future<String> _getToken() async {
+  Future<String?> _getToken() async {
     if (this._webViewController == null) {
       print("$TAG(ERROR): WebViewController not set");
       return "";
     }
-    String html = await this._webViewController.evaluateJavascript(
+    String html = await this._webViewController!.evaluateJavascript(
         "window.document.getElementsByTagName('html')[0].outerHTML;");
     RegExp exp = new RegExp(r"token\s=\s'([a-zA-Z0-9]+)'");
 
     Iterable<Match> matches = exp.allMatches(html);
-    if (matches == null) {
+    if (matches.isEmpty) {
       print("$TAG(ERROR): Token not found");
       return null;
     } else {

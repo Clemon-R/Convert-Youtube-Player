@@ -1,6 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:convertyoutubeplayer/models/cache_models/audio_model.dart';
-import 'package:convertyoutubeplayer/provider/service_provider.dart';
+import 'package:convertyoutubeplayer/provider/services_provider.dart';
 import 'package:convertyoutubeplayer/services/player_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:core';
@@ -9,21 +9,21 @@ import 'package:flutter_svg/svg.dart';
 
 // ignore: must_be_immutable
 class AudioHeader extends StatefulWidget {
-  AudioHeader({Key key}) : super(key: key);
+  AudioHeader({Key? key}) : super(key: key);
 
   @override
   _AudioHeaderState createState() => _AudioHeaderState();
 }
 
 class _AudioHeaderState extends State<AudioHeader> {
-  PlayerService _playerService = ServiceProvider.get();
+  PlayerService _playerService = ServicesProvider.get();
 
   String _leftDuration = "0:00";
   double _maxProgress = 0;
   String _duration = "0:00";
-  double _progress = 0;
+  double? _progress = 0;
 
-  AudioModel _currentAudio;
+  AudioModel? _currentAudio;
   var _isPlaying = false;
 
   @override
@@ -81,7 +81,7 @@ class _AudioHeaderState extends State<AudioHeader> {
     });
   }
 
-  _onAudioStatusChange(AudioModel audio, AudioPlayerState state) {
+  _onAudioStatusChange(AudioModel? audio, AudioPlayerState state) {
     setState(() {
       switch (state) {
         case AudioPlayerState.PLAYING:
@@ -107,7 +107,7 @@ class _AudioHeaderState extends State<AudioHeader> {
           bottom: BorderSide(width: 1.0, color: Color.fromRGBO(34, 40, 49, 1)),
         ),
       ),
-      height: 148,
+      height: 150,
       child: Column(
         children: [
           Container(
@@ -121,11 +121,11 @@ class _AudioHeaderState extends State<AudioHeader> {
                   trackShape: RectangularSliderTrackShape(),
                   trackHeight: 15.0,
                   thumbColor: Colors.redAccent,
-                  thumbShape: RoundSliderThumbShape(enabledThumbRadius: 7.5),
+                  thumbShape: RoundSliderThumbShape(enabledThumbRadius: 0),
                   overlayColor: Colors.redAccent,
-                  overlayShape: RoundSliderThumbShape(enabledThumbRadius: 7.5)),
+                  overlayShape: RoundSliderThumbShape(enabledThumbRadius: 0)),
               child: Slider(
-                value: _progress,
+                value: _progress!,
                 min: 0,
                 max: this._maxProgress,
                 label: this._duration.toString(),
@@ -142,22 +142,22 @@ class _AudioHeaderState extends State<AudioHeader> {
             ),
           ),
           Container(
-            height: 132,
+            height: 134,
             child: Row(
               children: [
                 Container(
                   color: Colors.white,
                   child: this._currentAudio != null
                       ? Image.network(
-                          _currentAudio.thumbnailUrl,
-                          width: 132,
-                          height: 132,
+                          _currentAudio!.thumbnailUrl!,
+                          width: 134,
+                          height: 134,
                         )
                       : SvgPicture.asset(
                           "assets/album-24px.svg",
                           color: Colors.black,
-                          width: 132,
-                          height: 132,
+                          width: 134,
+                          height: 134,
                         ),
                 ),
                 Expanded(
@@ -198,9 +198,13 @@ class _AudioHeaderState extends State<AudioHeader> {
                                 color: Colors.white,
                                 height: 32,
                               ),
-                              FlatButton(
-                                padding: const EdgeInsets.all(0),
-                                minWidth: 24,
+                              TextButton(
+                                style: ButtonStyle(
+                                  padding: MaterialStateProperty.all(
+                                      const EdgeInsets.all(0)),
+                                  minimumSize:
+                                      MaterialStateProperty.all(Size(24, 24)),
+                                ),
                                 onPressed: () {
                                   if (this._isPlaying)
                                     this._playerService.pause();

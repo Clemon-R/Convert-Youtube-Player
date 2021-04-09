@@ -1,17 +1,17 @@
-import 'package:convertyoutubeplayer/provider/service_provider.dart';
+import 'package:convertyoutubeplayer/provider/services_provider.dart';
 import 'package:convertyoutubeplayer/services/player_service.dart';
-import 'package:convertyoutubeplayer/widgets/youtube_download.dart';
+import 'package:convertyoutubeplayer/components/youtube_download.dart';
 import 'package:flutter/material.dart';
 
 class DownloadView extends StatefulWidget {
-  DownloadView({Key key}) : super(key: key);
+  DownloadView({Key? key}) : super(key: key);
 
   @override
   _DownloadViewState createState() => _DownloadViewState();
 }
 
 class _DownloadViewState extends State<DownloadView> {
-  PlayerService _playerService = ServiceProvider.get();
+  PlayerService _playerService = ServicesProvider.get();
 
   _DownloadViewState();
 

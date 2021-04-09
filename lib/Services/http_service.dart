@@ -1,36 +1,41 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:convertyoutubeplayer/models/rest_models/http_response_model.dart';
+import 'package:convertyoutubeplayer/provider/services_provider.dart';
 import 'package:convertyoutubeplayer/services/token_service.dart';
 import 'package:convertyoutubeplayer/enums/header_domain_enum.dart';
-import 'package:convertyoutubeplayer/models/http_models/base_request_model.dart';
-import 'package:convertyoutubeplayer/models/http_models/download_request_model.dart';
-import 'package:convertyoutubeplayer/models/http_models/request_model.dart';
-import 'package:convertyoutubeplayer/services/base_service.dart';
+import 'package:convertyoutubeplayer/models/rest_models/irest_model.dart';
+import 'package:convertyoutubeplayer/models/rest_models/http_download_request_model.dart';
+import 'package:convertyoutubeplayer/models/rest_models/http_request_model.dart';
+import 'package:convertyoutubeplayer/services/iservice.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-class HttpService extends BaseService {
+class HttpService extends IService {
   static const String TAG = "HttpService";
 
-  TokenService _tokenService;
+  final _tokenService = ServicesProvider.get<TokenService>();
 
-  HttpService(this._tokenService);
+  HttpService();
 
   Map<String, String> headerSelector(HeaderDomainEnum type) {
-    Map<String, String> result;
+    Map<String, String> result = {};
     switch (type) {
       case HeaderDomainEnum.Mp3Convert:
         result = {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
-          'X-Token': _tokenService.token,
-          'X-XSFR-Token': _tokenService.xsrfToken
         };
+        if (this._tokenService.token != null)
+          result["X-Token"] = _tokenService.token!;
+        if (this._tokenService.xsrfToken != null)
+          result["X-XSFR-Token"] = _tokenService.xsrfToken!;
         break;
       case HeaderDomainEnum.Youtube:
         break;
@@ -38,28 +43,48 @@ class HttpService extends BaseService {
     return result;
   }
 
-  Future<T> post<U, T extends BaseRequestModel>(
-      RequestModel<U, T> request) async {
-    var json = jsonEncode(request.body);
+  Future<HttpResponseModel<T>> post<U extends IRestModel, T extends IRestModel>(
+      HttpRequestModel<U, T> request) async {
+    print("$TAG: Post request on Url(${request.url})");
+    var json = request.body != null ? jsonEncode(request.body) : null;
+    print("$TAG: Post request Body($json)");
 
-    print("$TAG: Post Url(${request.url}), Body($json)");
-    var requestResult = await http.post(request.url,
+    var requestResult = await http.post(Uri.parse(request.url),
         headers: headerSelector(request.domain),
         body: json,
         encoding: Encoding.getByName("utf-8"));
     var body = requestResult.body;
-    return request.onDone(body, requestResult.statusCode == 200);
+    T? content;
+    if (request.fromJson != null) {
+      var jsonObj = jsonDecode(body);
+      content = request.fromJson!(jsonObj);
+    }
+    print("$TAG: Post response obj");
+    inspect(content);
+    return HttpResponseModel(
+        succeed: requestResult.statusCode == HttpStatus.ok,
+        content: content);
   }
 
-  Future<dynamic> get(RequestModel request) async {
-    print("$TAG: Get Url(${request.url})");
-    var requestResult =
-        await http.get(request.url, headers: headerSelector(request.domain));
+  Future<HttpResponseModel<T>> get<U extends IRestModel, T extends IRestModel>(
+      HttpRequestModel<U, T> request) async {
+    print("$TAG: Get request on Url(${request.url})");
+    var requestResult = await http.get(Uri.parse(request.url),
+        headers: headerSelector(request.domain));
     var body = requestResult.body;
-    return request.onDone(body, requestResult.statusCode == 200);
+    T? content;
+    if (request.fromJson != null) {
+      var jsonObj = jsonDecode(body);
+      content = request.fromJson!(jsonObj);
+    }
+    print("$TAG: Get response obj");
+    inspect(content);
+    return HttpResponseModel(
+        succeed: requestResult.statusCode == HttpStatus.ok,
+        content: content);
   }
 
-  Future<void> downloadFile(DownloadRequestModel request) async {
+  Future<void> downloadFile(HttpDownloadRequestModel request) async {
     print("$TAG: Download Url(${request.url}), FileName(${request.fileName})");
     var httpClient = http.Client();
     var result = http.Request('GET', Uri.parse(request.url));
@@ -67,26 +92,26 @@ class HttpService extends BaseService {
     try {
       response = httpClient.send(result);
     } catch (e) {
-      request.onFail();
+      request.onFail!();
       return;
     }
     var dir = Directory(
-        p.join((await getApplicationDocumentsDirectory()).path, "musics"));
+        p.join((await getApplicationDocumentsDirectory()).path, request.path));
     if (!await dir.exists()) dir.create(recursive: true);
 
     var chunks = <List<int>>[];
     var downloaded = 0;
-    dynamic mainstream;
+    late dynamic mainstream;
     mainstream = response.asStream().listen((http.StreamedResponse r) {
-      dynamic sub;
+      late dynamic sub;
       sub = r.stream.listen((value) {
         try {
           chunks.add(value);
           downloaded += value.length;
 
-          request.onProgress(downloaded, r.contentLength);
+          request.onProgress!(downloaded, r.contentLength ?? 0);
         } catch (e) {
-          request.onFail();
+          request.onFail!();
           sub.cancel();
           mainstream.cancel();
         }
@@ -99,7 +124,7 @@ class HttpService extends BaseService {
           print("${p.join(dir.path, request.fileName)}");
           file = File(p.join(dir.path, request.fileName));
           if (file.existsSync()) file.deleteSync();
-          final Uint8List bytes = Uint8List(r.contentLength);
+          final Uint8List bytes = Uint8List(r.contentLength!);
           int offset = 0;
           for (List<int> chunk in chunks) {
             bytes.setRange(offset, offset + chunk.length, chunk);
@@ -108,10 +133,10 @@ class HttpService extends BaseService {
           await file.writeAsBytes(bytes);
         } catch (e) {
           print("$TAG(ERROR): ${e.toString()}");
-          request.onFail();
+          request.onFail!();
           return;
         }
-        request.onDone(file);
+        request.onDone!(file);
       });
     });
   }

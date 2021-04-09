@@ -1,7 +1,7 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:convertyoutubeplayer/models/cache_models/audio_model.dart';
 import 'package:convertyoutubeplayer/models/cache_models/playlist_model.dart';
-import 'package:convertyoutubeplayer/provider/service_provider.dart';
+import 'package:convertyoutubeplayer/provider/services_provider.dart';
 import 'package:convertyoutubeplayer/services/player_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:core';
@@ -14,24 +14,24 @@ class AudioMp3Player extends StatefulWidget {
   // values (in this case nothing) provided by the parent and used
   // by the build  method of the State. Fields in a Widget
   // subclass are always marked "final".
-  final String title;
+  final String? title;
 
-  AudioMp3Player({Key key, this.title}) : super(key: key);
+  AudioMp3Player({Key? key, this.title}) : super(key: key);
 
   @override
   _AudioMp3PlayerState createState() => _AudioMp3PlayerState();
 }
 
 class _AudioMp3PlayerState extends State<AudioMp3Player> {
-  PlayerService _playerService = ServiceProvider.get();
+  PlayerService _playerService = ServicesProvider.get();
 
   String _leftDuration = "0:00";
   double _maxProgress = 0;
   String _duration = "0:00";
-  double _progress = 0;
+  double? _progress = 0;
 
-  AudioModel _currentAudio;
-  PlaylistModel _playlist;
+  AudioModel? _currentAudio;
+  PlaylistModel? _playlist;
   var _isPlaying = false;
 
   @override
@@ -89,7 +89,7 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
     });
   }
 
-  _onAudioStatusChange(AudioModel audio, AudioPlayerState state) {
+  _onAudioStatusChange(AudioModel? audio, AudioPlayerState state) {
     setState(() {
       switch (state) {
         case AudioPlayerState.PLAYING:
@@ -126,7 +126,7 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
                 overlayColor: Colors.redAccent,
                 overlayShape: RoundSliderThumbShape(enabledThumbRadius: 0)),
             child: Slider(
-              value: _progress,
+              value: _progress!,
               min: 0,
               max: this._maxProgress,
               label: this._duration.toString(),
@@ -143,10 +143,13 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              FlatButton(
-                  color: Colors.transparent,
-                  disabledColor: Colors.transparent,
-                  minWidth: 32,
+              TextButton(
+                  style: ButtonStyle(
+                    padding: MaterialStateProperty.all(const EdgeInsets.all(0)),
+                    minimumSize: MaterialStateProperty.all(Size(32, 32)),
+                    backgroundColor:
+                        MaterialStateProperty.all(Colors.transparent),
+                  ),
                   child: SvgPicture.asset(
                     this._isPlaying
                         ? "assets/pause-symbol.svg"

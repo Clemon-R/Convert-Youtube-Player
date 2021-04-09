@@ -1,23 +1,25 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:convertyoutubeplayer/models/cache_models/audio_model.dart';
-import 'package:convertyoutubeplayer/services/base_service.dart';
+import 'package:convertyoutubeplayer/models/cache_models/playlist_model.dart';
+import 'package:convertyoutubeplayer/services/iservice.dart';
 
-class PlayerService extends BaseService {
+class PlayerService extends IService {
   List<void Function(AudioModel audio)> _onAudioChange =
       List.empty(growable: true);
-  List<void Function(AudioModel audio, AudioPlayerState state)>
+  List<void Function(AudioModel? audio, AudioPlayerState state)>
       _onAudioStatusChange = List.empty(growable: true);
   List<void Function(double seconds)> _onAudioDurationChange =
       List.empty(growable: true);
   List<void Function(dynamic event)> _onAudioPositionChange =
       List.empty(growable: true);
 
-  AudioModel _currentAudio = null;
+  PlaylistModel? _currentPlaylist = null;
+  AudioModel? _currentAudio = null;
   final _audioPlayer = AudioPlayer();
 
   PlayerService() {
     _onAudioChange.add((audio) {
-      this._audioPlayer.setUrl(audio.pathFile, isLocal: true);
+      this._audioPlayer.setUrl(audio.pathFile!, isLocal: true);
     });
     this._audioPlayer.onDurationChanged.listen((event) {
       this
@@ -31,11 +33,28 @@ class PlayerService extends BaseService {
 
   changeAudio(AudioModel audio) {
     this._currentAudio = audio;
+    this._currentPlaylist = audio.playlist;
+
     this._onAudioChange.forEach((handler) => handler(audio));
+
+    this.changeSeek(0);
   }
 
-  changeAudioStatus(AudioModel audio, AudioPlayerState state) {
-    this._onAudioStatusChange.forEach((handler) => handler(audio, state));
+  changeAudioStatus(AudioModel? audio, AudioPlayerState state) {
+    if (state == AudioPlayerState.COMPLETED && _currentPlaylist != null) {
+      var nextToPlay = false;
+      AudioModel? next;
+      for (var music in this._currentPlaylist!.musics!.values) {
+        if (music!.youtubeUrl == this._currentAudio!.youtubeUrl) {
+          nextToPlay = true;
+        } else if (nextToPlay) {
+          next = music;
+          break;
+        }
+      }
+      if (next != null) this.changeAudio(next);
+    } else
+      this._onAudioStatusChange.forEach((handler) => handler(audio, state));
   }
 
   changeSeek(int seconds) {
@@ -54,7 +73,7 @@ class PlayerService extends BaseService {
     this.changeAudioStatus(this._currentAudio, this._audioPlayer.state);
   }
 
-  AudioModel getCurrentAudio() {
+  AudioModel? getCurrentAudio() {
     return this._currentAudio;
   }
 
@@ -87,7 +106,7 @@ class PlayerService extends BaseService {
   }
 
   addListenerOnAudioStatusChange(
-      void Function(AudioModel audio, AudioPlayerState state) handler) {
+      void Function(AudioModel? audio, AudioPlayerState state) handler) {
     if (!_onAudioStatusChange.contains(handler))
       this._onAudioStatusChange.add(handler);
   }
