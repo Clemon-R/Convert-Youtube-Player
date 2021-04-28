@@ -4,6 +4,7 @@ import 'package:youtekmusic/models/cache_models/playlist_model.dart';
 import 'package:youtekmusic/services/iservice.dart';
 
 class PlayerService extends IService {
+  static const TAG = "PlayerService";
   List<void Function(AudioModel audio)> _onAudioChange =
       List.empty(growable: true);
   List<void Function(AudioModel? audio, AudioPlayerState state)>
@@ -30,6 +31,9 @@ class PlayerService extends IService {
     this._audioPlayer.onAudioPositionChanged.listen((event) {
       this._onAudioPositionChange.forEach((handler) => handler(event));
     });
+    this._audioPlayer.onPlayerCompletion.listen((event) {
+      this.changeAudioStatus(this._currentAudio, AudioPlayerState.COMPLETED);
+    });
   }
 
   changeAudio(AudioModel audio) {
@@ -43,6 +47,7 @@ class PlayerService extends IService {
 
   changeAudioStatus(AudioModel? audio, AudioPlayerState state) {
     if (state == AudioPlayerState.COMPLETED && _currentPlaylist != null) {
+      print("$TAG: Playing next music...");
       var nextToPlay = false;
       AudioModel? next;
       for (var music in this._currentPlaylist!.musics!.values) {
@@ -53,7 +58,10 @@ class PlayerService extends IService {
           break;
         }
       }
-      if (next != null) this.changeAudio(next);
+      if (next != null) {
+        this.changeAudio(next);
+        this.play();
+      }
     } else
       this._onAudioStatusChange.forEach((handler) => handler(audio, state));
   }

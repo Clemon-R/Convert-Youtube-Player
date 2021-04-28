@@ -125,7 +125,9 @@ class _AudioHeaderState extends State<AudioHeader> {
                   overlayColor: Colors.redAccent,
                   overlayShape: RoundSliderThumbShape(enabledThumbRadius: 0)),
               child: Slider(
-                value: _progress!,
+                value: _progress! > this._maxProgress
+                    ? this._maxProgress
+                    : _progress!,
                 min: 0,
                 max: this._maxProgress,
                 label: this._duration.toString(),
