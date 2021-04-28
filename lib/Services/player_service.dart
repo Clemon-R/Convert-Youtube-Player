@@ -47,27 +47,49 @@ class PlayerService extends IService {
 
   changeAudioStatus(AudioModel? audio, AudioPlayerState state) {
     if (state == AudioPlayerState.COMPLETED && _currentPlaylist != null) {
-      print("$TAG: Playing next music...");
-      var nextToPlay = false;
-      AudioModel? next;
-      for (var music in this._currentPlaylist!.musics!.values) {
-        if (music!.youtubeUrl == this._currentAudio!.youtubeUrl) {
-          nextToPlay = true;
-        } else if (nextToPlay) {
-          next = music;
-          break;
-        }
-      }
-      if (next != null) {
-        this.changeAudio(next);
-        this.play();
-      }
+      this.playNext();
     } else
       this._onAudioStatusChange.forEach((handler) => handler(audio, state));
   }
 
   changeSeek(int seconds) {
     this._audioPlayer.seek(Duration(seconds: seconds));
+  }
+
+  playPrevious() async {
+    print("$TAG: Playing previous music...");
+    var toPlay = false;
+    AudioModel? last;
+    for (var music in this._currentPlaylist!.musics!.values) {
+      if (music!.youtubeUrl == this._currentAudio!.youtubeUrl) {
+        toPlay = true;
+        break;
+      } else {
+        last = music;
+      }
+    }
+    if (last != null && toPlay) {
+      this.changeAudio(last);
+      await this.play();
+    }
+  }
+
+  playNext() async {
+    print("$TAG: Playing next music...");
+    var nextToPlay = false;
+    AudioModel? next;
+    for (var music in this._currentPlaylist!.musics!.values) {
+      if (music!.youtubeUrl == this._currentAudio!.youtubeUrl) {
+        nextToPlay = true;
+      } else if (nextToPlay) {
+        next = music;
+        break;
+      }
+    }
+    if (next != null) {
+      this.changeAudio(next);
+      await this.play();
+    }
   }
 
   play() async {

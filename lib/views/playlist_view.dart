@@ -136,9 +136,8 @@ class _PlaylistViewState extends State<PlaylistView> {
                     width: 1.0, color: Color.fromRGBO(34, 40, 49, 1)),
               ),
             ),
-            child: FlatButton(
-              padding: EdgeInsets.all(0),
-              onPressed: () {
+            child: GestureDetector(
+              onTap: () {
                 this._goToPlaylistList();
               },
               child: Row(

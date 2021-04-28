@@ -195,19 +195,16 @@ class _AudioHeaderState extends State<AudioHeader> {
                           ),
                           Row(
                             children: [
-                              SvgPicture.asset(
-                                "assets/skip_previous-24px.svg",
-                                color: Colors.white,
-                                height: 32,
-                              ),
-                              TextButton(
-                                style: ButtonStyle(
-                                  padding: MaterialStateProperty.all(
-                                      const EdgeInsets.all(0)),
-                                  minimumSize:
-                                      MaterialStateProperty.all(Size(24, 24)),
+                              GestureDetector(
+                                onTap: () => this._playerService.playPrevious(),
+                                child: SvgPicture.asset(
+                                  "assets/skip_previous-24px.svg",
+                                  color: Colors.white,
+                                  height: 32,
                                 ),
-                                onPressed: () {
+                              ),
+                              GestureDetector(
+                                onTap: () {
                                   if (this._isPlaying)
                                     this._playerService.pause();
                                   else
@@ -221,10 +218,13 @@ class _AudioHeaderState extends State<AudioHeader> {
                                   height: 24,
                                 ),
                               ),
-                              SvgPicture.asset(
-                                "assets/skip_next-24px.svg",
-                                color: Colors.white,
-                                height: 32,
+                              GestureDetector(
+                                onTap: () => this._playerService.playNext(),
+                                child: SvgPicture.asset(
+                                  "assets/skip_next-24px.svg",
+                                  color: Colors.white,
+                                  height: 32,
+                                ),
                               ),
                             ],
                           )
