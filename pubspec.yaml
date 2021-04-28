@@ -1,5 +1,5 @@
-name: convertyoutubeplayer
-description: An application to be able to listen to Youtube Music offline
+name: youtekmusic
+description: An application to listen Youtube Music on an offline mode
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
@@ -30,6 +30,7 @@ dependencies:
   webview_flutter: ^2.0.4
   async: ^2.5.0
   json_annotation: ^4.0.1
+  shared_preferences: ^2.0.5
   flutter:
     sdk: flutter
 

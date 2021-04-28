@@ -1,4 +1,4 @@
-import 'package:convertyoutubeplayer/models/cache_models/audio_model.dart';
+import 'package:youtekmusic/models/cache_models/audio_model.dart';
 
 class PlaylistModel {
   String? title;
@@ -19,7 +19,8 @@ class PlaylistModel {
 
   Map<String, dynamic> toJson() => {
         'title': title,
-        'musics':
-            musics!.values.map((audio) => audio!.toJson()).toList(growable: false)
+        'musics': musics!.values
+            .map((audio) => audio!.toJson())
+            .toList(growable: false)
       };
 }

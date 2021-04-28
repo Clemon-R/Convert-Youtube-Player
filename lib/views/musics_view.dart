@@ -1,10 +1,11 @@
 import 'dart:io';
 
-import 'package:convertyoutubeplayer/constant/common.dart';
-import 'package:convertyoutubeplayer/models/cache_models/playlist_model.dart';
-import 'package:convertyoutubeplayer/provider/services_provider.dart';
-import 'package:convertyoutubeplayer/services/player_service.dart';
-import 'package:convertyoutubeplayer/services/playlist_service.dart';
+import 'package:youtekmusic/constant/common.dart';
+import 'package:youtekmusic/models/cache_models/playlist_model.dart';
+import 'package:youtekmusic/provider/services_provider.dart';
+import 'package:youtekmusic/services/cache_service.dart';
+import 'package:youtekmusic/services/player_service.dart';
+import 'package:youtekmusic/services/playlist_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -18,12 +19,21 @@ class MusicsView extends StatefulWidget {
 }
 
 class _MusicsViewState extends State<MusicsView> {
-  PlaylistService _playlistService = ServicesProvider.get();
-  PlayerService _playerService = ServicesProvider.get();
+  final PlaylistService _playlistService = ServicesProvider.get();
+  final CacheService _cacheService = ServicesProvider.get();
+  final PlayerService _playerService = ServicesProvider.get();
 
   PlaylistModel? _playlist;
 
   _MusicsViewState(this._playlist);
+
+  @override
+  void initState() {
+    this._cacheService.onReady.add(() {
+      setState(() {});
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

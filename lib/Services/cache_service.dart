@@ -1,42 +1,48 @@
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:convertyoutubeplayer/models/cache_models/cache_model.dart';
-import 'package:convertyoutubeplayer/services/iservice.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:youtekmusic/models/cache_models/cache_model.dart';
+import 'package:youtekmusic/services/iservice.dart';
 
 class CacheService extends IService {
   static const String TAG = "CacheService";
 
-  Directory? _homeDirectory;
-  String _fileName = "cache.conf";
   CacheModel _content = CacheModel();
   CacheModel get content => this._content;
 
+  bool _isReady = false;
+  bool get isReady => this._isReady;
+
+  List<Function()> _onReady = [];
+  List<Function()> get onReady => this._onReady;
+
+  late final SharedPreferences _prefs;
+
   CacheService() {
     print("$TAG: Init...");
-    print("$TAG: Initiated");
+    SharedPreferences.getInstance().then((value) async {
+      this._prefs = value;
+      this._isReady = true;
+
+      await this._loadCache();
+      print("$TAG: Initiated");
+
+      this._onReady.forEach((element) => element.call());
+    });
   }
 
-  _loadHomeDirectory() async {
-    if (this._homeDirectory == null) {
-      this._homeDirectory = await getApplicationDocumentsDirectory();
-      if (!await this._homeDirectory!.exists())
-        this._homeDirectory!.create(recursive: true);
-      print("$TAG: Home directory loaded");
+  _loadCache() async {
+    if (!this._isReady) {
+      print("$TAG(ERROR): Not ready yet");
+      return;
     }
-  }
 
-  loadCache() async {
     print("$TAG: Loading cache...");
-    await this._loadHomeDirectory();
-    var file = File(p.join(this._homeDirectory!.path, this._fileName));
-    if (!await file.exists()) {
+    var content = this._prefs.getString(TAG);
+    if (content == null) {
       print("$TAG: No cache found");
       return;
     }
-    var content = await file.readAsString();
     print("$TAG: Json content\n$content");
     var json = jsonDecode(content);
     this._content = CacheModel.fromJson(json);
@@ -44,20 +50,17 @@ class CacheService extends IService {
   }
 
   saveCache() async {
-    print("$TAG: Saving cache...");
-    await this._loadHomeDirectory();
-    var file = File(p.join(this._homeDirectory!.path, this._fileName));
-    if (await file.exists()) {
-      print("$TAG: Removing old cache");
-      try {
-        await file.delete();
-      } catch (FileSystemException) {}
+    if (!this._isReady) {
+      print("$TAG(ERROR): Not ready yet");
+      return;
     }
+
+    print("$TAG: Saving cache...");
     var content = this._content.toJson();
     print("$TAG: Json content\n$content");
     var json = jsonEncode(content);
     print("$TAG: Json\n$json");
-    await file.writeAsString(json);
+    this._prefs.setString(TAG, json);
     print("$TAG: Cache saved");
   }
 }

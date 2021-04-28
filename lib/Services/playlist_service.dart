@@ -1,8 +1,8 @@
-import 'package:convertyoutubeplayer/models/cache_models/audio_model.dart';
-import 'package:convertyoutubeplayer/models/cache_models/playlist_model.dart';
-import 'package:convertyoutubeplayer/provider/services_provider.dart';
-import 'package:convertyoutubeplayer/services/iservice.dart';
-import 'package:convertyoutubeplayer/services/cache_service.dart';
+import 'package:youtekmusic/models/cache_models/audio_model.dart';
+import 'package:youtekmusic/models/cache_models/playlist_model.dart';
+import 'package:youtekmusic/provider/services_provider.dart';
+import 'package:youtekmusic/services/iservice.dart';
+import 'package:youtekmusic/services/cache_service.dart';
 
 class PlaylistService extends IService {
   final _cacheService = ServicesProvider.get<CacheService>();

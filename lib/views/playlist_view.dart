@@ -1,9 +1,9 @@
-import 'package:convertyoutubeplayer/models/cache_models/playlist_model.dart';
-import 'package:convertyoutubeplayer/provider/services_provider.dart';
-import 'package:convertyoutubeplayer/services/player_service.dart';
-import 'package:convertyoutubeplayer/services/playlist_service.dart';
-import 'package:convertyoutubeplayer/views/musics_view.dart';
-import 'package:convertyoutubeplayer/components/audio_header.dart';
+import 'package:youtekmusic/models/cache_models/playlist_model.dart';
+import 'package:youtekmusic/provider/services_provider.dart';
+import 'package:youtekmusic/services/cache_service.dart';
+import 'package:youtekmusic/services/player_service.dart';
+import 'package:youtekmusic/services/playlist_service.dart';
+import 'package:youtekmusic/views/musics_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -15,12 +15,19 @@ class PlaylistView extends StatefulWidget {
 }
 
 class _PlaylistViewState extends State<PlaylistView> {
-  PlaylistService _playlistService = ServicesProvider.get();
-  PlayerService _playerService = ServicesProvider.get();
+  final PlaylistService _playlistService = ServicesProvider.get();
+  final CacheService _cacheService = ServicesProvider.get();
+  final PlayerService _playerService = ServicesProvider.get();
 
   PlaylistModel? _currentPlaylist = null;
 
-  _PlaylistViewState();
+  @override
+  void initState() {
+    this._cacheService.onReady.add(() {
+      setState(() {});
+    });
+    super.initState();
+  }
 
   void _goToPlaylistList() {
     setState(() {

@@ -1,16 +1,18 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:convertyoutubeplayer/constant/common.dart';
-import 'package:convertyoutubeplayer/models/rest_models/convert_mp3_rest_models/check_request_status_rest_model.dart';
-import 'package:convertyoutubeplayer/models/rest_models/convert_mp3_rest_models/start_convert_music_request_model.dart';
-import 'package:convertyoutubeplayer/services/http_service.dart';
-import 'package:convertyoutubeplayer/services/playlist_service.dart';
-import 'package:convertyoutubeplayer/services/token_service.dart';
-import 'package:convertyoutubeplayer/models/cache_models/audio_model.dart';
-import 'package:convertyoutubeplayer/models/rest_models/http_download_request_model.dart';
-import 'package:convertyoutubeplayer/provider/services_provider.dart';
-import 'package:convertyoutubeplayer/constant/urls.dart';
+import 'package:youtekmusic/constant/common.dart';
+import 'package:youtekmusic/enums/header_domain_enum.dart';
+import 'package:youtekmusic/models/rest_models/convert_mp3_rest_models/check_request_status_rest_model.dart';
+import 'package:youtekmusic/models/rest_models/convert_mp3_rest_models/start_convert_music_request_model.dart';
+import 'package:youtekmusic/models/rest_models/http_request_model.dart';
+import 'package:youtekmusic/services/http_service.dart';
+import 'package:youtekmusic/services/playlist_service.dart';
+import 'package:youtekmusic/services/token_service.dart';
+import 'package:youtekmusic/models/cache_models/audio_model.dart';
+import 'package:youtekmusic/models/rest_models/http_download_request_model.dart';
+import 'package:youtekmusic/provider/services_provider.dart';
+import 'package:youtekmusic/constant/urls.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -30,9 +32,10 @@ class YoutubeDownload extends StatefulWidget {
 }
 
 class _YoutubeDownloadState extends State<YoutubeDownload> {
-  PlaylistService _playlistService = ServicesProvider.get();
-  HttpService _httpService = ServicesProvider.get();
-  TokenService _tokenService = ServicesProvider.get();
+  static const TAG = "YoutubeDownload";
+  final PlaylistService _playlistService = ServicesProvider.get();
+  final HttpService _httpService = ServicesProvider.get();
+  final TokenService _tokenService = ServicesProvider.get();
   final Function(AudioModel path)? onMusicDownloaded;
 
   WebViewController? _webViewController;
@@ -55,7 +58,13 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
   }
 
   _startDownload() async {
-    if (!_tokenService.initiated || this._isDownloading) return;
+    if (!_tokenService.initiated || this._isDownloading) {
+      if (!_tokenService.initiated)
+        print("$TAG(ERROR): Token service not initiated");
+      else
+        print("$TAG(ERROR): Is currently downloading");
+      return;
+    }
     setState(() {
       this._isDownloading = true;
     });
@@ -63,8 +72,8 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
         StartConvertMusicRestModel(url: this._currentUrl, extension: "mp3");
     var response = await _httpService.post(downloadRequest.request);
 
-    if (!response.succeed || response.content == null) {
-      print("(ERROR): Start download request failed");
+    if (response.code != HttpStatus.ok || response.content == null) {
+      print("$TAG(ERROR): Start download request failed");
 
       setState(() {
         this._msg = "Une erreur ses produite";
@@ -74,7 +83,7 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
       return;
     }
     print(
-        "Request(${response.content?.uuid}): title ${response.content?.title}, status ${response.content?.status}, percent ${response.content?.percent}");
+        "$TAG: Request(${response.content?.uuid}): title ${response.content?.title}, status ${response.content?.status}, percent ${response.content?.percent}");
     setState(() {
       this._currentDownload = this._currentUrl;
       this._msg = response.content!.status;
@@ -83,10 +92,13 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
   }
 
   _handleAdvancementRequest(CheckRequestStatusRestModel lastRequest) async {
-    if (!this._isDownloading) return;
+    if (!this._isDownloading) {
+      print("$TAG(ERROR): Is not currently downloading");
+      return;
+    }
     final response = await _httpService.get(lastRequest.request);
-    if (!response.succeed || response.content == null) {
-      print("(ERROR): Check request failed");
+    if (response.code != HttpStatus.ok || response.content == null) {
+      print("$TAG(ERROR): Check request failed");
       setState(() {
         this._msg = "Une erreur ses produite";
         this._progress = 1;
@@ -117,6 +129,7 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
           this._progress = 0.3;
           checkAgain = true;
           break;
+        case "converting":
         case "ended":
           this._msg = "Prêt au téléchargement local";
           this._progress = 0.4;
@@ -125,7 +138,7 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
       }
     });
     print(
-        "Request(${response.content?.uuid}): title ${response.content?.title}, status ${response.content?.status}, percent ${response.content?.percent}");
+        "$TAG: Request(${response.content?.uuid}): title ${response.content?.title}, status ${response.content?.status}, percent ${response.content?.percent}");
     if (checkAgain)
       _handleAdvancementRequest(response.content!);
     else if (startDownloadingFile) _beginDownloadingFile(response.content!);
@@ -133,19 +146,20 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
 
   _beginDownloadingFile(CheckRequestStatusRestModel lastRequest) {
     if (!this._isDownloading) return;
-    print("Downloading the file...");
+    print("$TAG: Downloading the file...");
     var downloadRequest = HttpDownloadRequestModel(
       fileName: "${lastRequest.uuid}.mp3",
       url: lastRequest.fileUrl!,
       path: "musics",
       onProgress: (downloaded, sizeMax) {
-        print("Download in progress ${downloaded / sizeMax * 100}%");
+        print("$TAG: Download in progress ${downloaded / sizeMax * 100}%");
         setState(() {
           this._msg = "Téléchargement ${(downloaded / sizeMax * 100).round()}%";
           this._progress = downloaded / sizeMax * 0.6 + 0.4;
         });
       },
       onDone: (file) {
+        print("$TAG: Download done");
         var audio = AudioModel(
             title: lastRequest.title,
             author: null,
@@ -168,6 +182,7 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
         });
       },
       onFail: () {
+        print("$TAG: Download failed");
         setState(() {
           this._msg = "Une erreur ses produite";
           this._progress = 1;
@@ -206,7 +221,7 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
       ],
     );
 
-    if (this._msg!.isNotEmpty)
+    if (this._msg != null && this._msg!.isNotEmpty)
       build.children
           .add(Text(this._msg!, style: TextStyle(color: Colors.white)));
 
@@ -225,7 +240,7 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
                   : Colors.white)),
       onPressed: disabledBtn
           ? null
-          : () async {
+          : () {
               _startDownload();
             },
     ));
@@ -245,12 +260,18 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
         onWebViewCreated: (controller) {
           _tokenService.setController(controller);
         },
-        onPageFinished: (url) {
-          _tokenService.init();
+        onPageFinished: (url) async {
+          print("$TAG: Page loaded, trying to get all token...");
 
-          const halfSecond = const Duration(milliseconds: 500);
+          _tokenService.init();
+          var result = await _httpService.get(HttpRequestModel(
+              domain: HeaderDomainEnum.Mp3Convert,
+              url: Urls.mp3ConvertUrlCsrf));
+          _tokenService.init(result.cookie);
+
           if (this._refreshTimer != null) return;
-          this._refreshTimer = new Timer.periodic(halfSecond, (Timer t) async {
+          this._refreshTimer =
+              Timer.periodic(const Duration(milliseconds: 500), (_) async {
             if (this._webViewController == null) return;
             try {
               var url = await this._webViewController!.currentUrl();
@@ -258,7 +279,9 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
                 setState(() {
                   this._currentUrl = url;
                 });
-            } on Exception catch (_) {}
+            } on Exception catch (_) {
+              print("$TAG(ERROR): While refresh the current url");
+            }
           });
         },
       ),

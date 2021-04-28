@@ -1,6 +1,6 @@
-import 'package:convertyoutubeplayer/enums/header_domain_enum.dart';
-import 'package:convertyoutubeplayer/models/rest_models/irest_model.dart';
-import 'package:convertyoutubeplayer/constant/urls.dart';
+import 'package:youtekmusic/enums/header_domain_enum.dart';
+import 'package:youtekmusic/models/rest_models/irest_model.dart';
+import 'package:youtekmusic/constant/urls.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../http_request_model.dart';

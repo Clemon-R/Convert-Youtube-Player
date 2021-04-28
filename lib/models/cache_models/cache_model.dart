@@ -1,4 +1,4 @@
-import 'package:convertyoutubeplayer/models/cache_models/playlist_model.dart';
+import 'package:youtekmusic/models/cache_models/playlist_model.dart';
 
 class CacheModel {
   Map<String?, PlaylistModel?> playlists = Map();

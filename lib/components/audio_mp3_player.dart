@@ -1,8 +1,8 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:convertyoutubeplayer/models/cache_models/audio_model.dart';
-import 'package:convertyoutubeplayer/models/cache_models/playlist_model.dart';
-import 'package:convertyoutubeplayer/provider/services_provider.dart';
-import 'package:convertyoutubeplayer/services/player_service.dart';
+import 'package:youtekmusic/models/cache_models/audio_model.dart';
+import 'package:youtekmusic/models/cache_models/playlist_model.dart';
+import 'package:youtekmusic/provider/services_provider.dart';
+import 'package:youtekmusic/services/player_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:core';
 

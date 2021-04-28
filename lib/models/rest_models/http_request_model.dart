@@ -1,4 +1,4 @@
-import 'package:convertyoutubeplayer/enums/header_domain_enum.dart';
+import 'package:youtekmusic/enums/header_domain_enum.dart';
 
 import 'irest_model.dart';
 

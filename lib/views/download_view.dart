@@ -1,6 +1,6 @@
-import 'package:convertyoutubeplayer/provider/services_provider.dart';
-import 'package:convertyoutubeplayer/services/player_service.dart';
-import 'package:convertyoutubeplayer/components/youtube_download.dart';
+import 'package:youtekmusic/provider/services_provider.dart';
+import 'package:youtekmusic/services/player_service.dart';
+import 'package:youtekmusic/components/youtube_download.dart';
 import 'package:flutter/material.dart';
 
 class DownloadView extends StatefulWidget {

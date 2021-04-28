@@ -4,14 +4,14 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:convertyoutubeplayer/models/rest_models/http_response_model.dart';
-import 'package:convertyoutubeplayer/provider/services_provider.dart';
-import 'package:convertyoutubeplayer/services/token_service.dart';
-import 'package:convertyoutubeplayer/enums/header_domain_enum.dart';
-import 'package:convertyoutubeplayer/models/rest_models/irest_model.dart';
-import 'package:convertyoutubeplayer/models/rest_models/http_download_request_model.dart';
-import 'package:convertyoutubeplayer/models/rest_models/http_request_model.dart';
-import 'package:convertyoutubeplayer/services/iservice.dart';
+import 'package:youtekmusic/models/rest_models/http_response_model.dart';
+import 'package:youtekmusic/provider/services_provider.dart';
+import 'package:youtekmusic/services/token_service.dart';
+import 'package:youtekmusic/enums/header_domain_enum.dart';
+import 'package:youtekmusic/models/rest_models/irest_model.dart';
+import 'package:youtekmusic/models/rest_models/http_download_request_model.dart';
+import 'package:youtekmusic/models/rest_models/http_request_model.dart';
+import 'package:youtekmusic/services/iservice.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:path/path.dart' as p;
@@ -22,8 +22,6 @@ class HttpService extends IService {
 
   final _tokenService = ServicesProvider.get<TokenService>();
 
-  HttpService();
-
   Map<String, String> headerSelector(HeaderDomainEnum type) {
     Map<String, String> result = {};
     switch (type) {
@@ -31,11 +29,14 @@ class HttpService extends IService {
         result = {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
+          'Origin': 'https://mp3-youtube.download'
         };
         if (this._tokenService.token != null)
           result["X-Token"] = _tokenService.token!;
         if (this._tokenService.xsrfToken != null)
-          result["X-XSFR-Token"] = _tokenService.xsrfToken!;
+          result["X-XSRF-Token"] = _tokenService.xsrfToken!;
+        if (this._tokenService.cookie != null)
+          result["cookie"] = _tokenService.cookie! + ";";
         break;
       case HeaderDomainEnum.Youtube:
         break;
@@ -49,11 +50,15 @@ class HttpService extends IService {
     var json = request.body != null ? jsonEncode(request.body) : null;
     print("$TAG: Post request Body($json)");
 
-    var requestResult = await http.post(Uri.parse(request.url),
-        headers: headerSelector(request.domain),
-        body: json,
-        encoding: Encoding.getByName("utf-8"));
+    var requestResult = await http.Client().post(Uri.parse(request.url),
+        headers: headerSelector(request.domain), body: json);
+    // requestResult.request?.headers.entries.forEach((element) {
+    //   print("$TAG: Broken request ${element.key} ${element.value}");
+    // });
     var body = requestResult.body;
+    var headers = requestResult.headers;
+    print("$TAG: Post response json\n$body");
+    inspect(body);
     T? content;
     if (request.fromJson != null) {
       var jsonObj = jsonDecode(body);
@@ -62,8 +67,9 @@ class HttpService extends IService {
     print("$TAG: Post response obj");
     inspect(content);
     return HttpResponseModel(
-        succeed: requestResult.statusCode == HttpStatus.ok,
-        content: content);
+        code: requestResult.statusCode,
+        content: content,
+        cookie: headers["set-cookie"]);
   }
 
   Future<HttpResponseModel<T>> get<U extends IRestModel, T extends IRestModel>(
@@ -72,16 +78,19 @@ class HttpService extends IService {
     var requestResult = await http.get(Uri.parse(request.url),
         headers: headerSelector(request.domain));
     var body = requestResult.body;
+    var headers = requestResult.headers;
+    print("$TAG: Get response json\n$body");
     T? content;
     if (request.fromJson != null) {
       var jsonObj = jsonDecode(body);
       content = request.fromJson!(jsonObj);
+      print("$TAG: Get response obj");
+      inspect(content);
     }
-    print("$TAG: Get response obj");
-    inspect(content);
     return HttpResponseModel(
-        succeed: requestResult.statusCode == HttpStatus.ok,
-        content: content);
+        code: requestResult.statusCode,
+        content: content,
+        cookie: headers["set-cookie"]);
   }
 
   Future<void> downloadFile(HttpDownloadRequestModel request) async {

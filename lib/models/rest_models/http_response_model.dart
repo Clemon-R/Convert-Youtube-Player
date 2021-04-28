@@ -1,7 +1,10 @@
-import 'package:convertyoutubeplayer/models/rest_models/irest_model.dart';
+import 'dart:io';
+
+import 'package:youtekmusic/models/rest_models/irest_model.dart';
 
 class HttpResponseModel<T extends IRestModel> {
-  final bool succeed;
+  final int code;
+  final String? cookie;
   final T? content;
-  HttpResponseModel({required this.succeed, this.content});
+  HttpResponseModel({required this.code, required this.cookie, this.content});
 }

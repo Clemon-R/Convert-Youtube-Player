@@ -1,7 +1,7 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:convertyoutubeplayer/models/cache_models/audio_model.dart';
-import 'package:convertyoutubeplayer/models/cache_models/playlist_model.dart';
-import 'package:convertyoutubeplayer/services/iservice.dart';
+import 'package:youtekmusic/models/cache_models/audio_model.dart';
+import 'package:youtekmusic/models/cache_models/playlist_model.dart';
+import 'package:youtekmusic/services/iservice.dart';
 
 class PlayerService extends IService {
   List<void Function(AudioModel audio)> _onAudioChange =
@@ -15,6 +15,7 @@ class PlayerService extends IService {
 
   PlaylistModel? _currentPlaylist = null;
   AudioModel? _currentAudio = null;
+
   final _audioPlayer = AudioPlayer();
 
   PlayerService() {

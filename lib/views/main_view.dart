@@ -1,9 +1,9 @@
-import 'package:convertyoutubeplayer/provider/services_provider.dart';
-import 'package:convertyoutubeplayer/views/download_view.dart';
-import 'package:convertyoutubeplayer/views/musics_view.dart';
-import 'package:convertyoutubeplayer/views/playlist_view.dart';
-import 'package:convertyoutubeplayer/views/settings_view.dart';
-import 'package:convertyoutubeplayer/components/audio_header.dart';
+import 'package:youtekmusic/provider/services_provider.dart';
+import 'package:youtekmusic/views/download_view.dart';
+import 'package:youtekmusic/views/musics_view.dart';
+import 'package:youtekmusic/views/playlist_view.dart';
+import 'package:youtekmusic/views/settings_view.dart';
+import 'package:youtekmusic/components/audio_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 

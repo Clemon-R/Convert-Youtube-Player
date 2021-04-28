@@ -1,5 +1,5 @@
-import 'package:convertyoutubeplayer/provider/services_provider.dart';
-import 'package:convertyoutubeplayer/views/main_view.dart';
+import 'package:youtekmusic/provider/services_provider.dart';
+import 'package:youtekmusic/views/main_view.dart';
 import 'package:flutter/material.dart';
 
 Future<void> main() async {

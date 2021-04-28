@@ -1,10 +1,10 @@
 import 'package:async/async.dart';
-import 'package:convertyoutubeplayer/services/iservice.dart';
-import 'package:convertyoutubeplayer/services/cache_service.dart';
-import 'package:convertyoutubeplayer/services/http_service.dart';
-import 'package:convertyoutubeplayer/services/player_service.dart';
-import 'package:convertyoutubeplayer/services/playlist_service.dart';
-import 'package:convertyoutubeplayer/services/token_service.dart';
+import 'package:youtekmusic/services/iservice.dart';
+import 'package:youtekmusic/services/cache_service.dart';
+import 'package:youtekmusic/services/http_service.dart';
+import 'package:youtekmusic/services/player_service.dart';
+import 'package:youtekmusic/services/playlist_service.dart';
+import 'package:youtekmusic/services/token_service.dart';
 import 'package:get_it/get_it.dart';
 
 class ServicesProvider {
@@ -28,10 +28,9 @@ class ServicesProvider {
 
   static Future<void> initializeApp() async {
     print("$TAG: Initializing the app...");
-    return _memoizer.runOnce(() async => {
-          await _getIt.allReady(),
-          ServicesProvider.get<CacheService>().loadCache()
-        });
+    return _memoizer.runOnce(() async {
+      await _getIt.allReady();
+    });
   }
 
   static T get<T extends IService>() {

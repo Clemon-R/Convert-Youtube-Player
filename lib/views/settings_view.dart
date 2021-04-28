@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:convertyoutubeplayer/constant/common.dart';
-import 'package:convertyoutubeplayer/provider/services_provider.dart';
-import 'package:convertyoutubeplayer/services/cache_service.dart';
+import 'package:youtekmusic/constant/common.dart';
+import 'package:youtekmusic/provider/services_provider.dart';
+import 'package:youtekmusic/services/cache_service.dart';
 import 'package:flutter/material.dart';
 
 class SettingsView extends StatefulWidget {
