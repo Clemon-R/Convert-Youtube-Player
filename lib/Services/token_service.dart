@@ -1,7 +1,7 @@
-import 'package:youtekmusic/services/iservice.dart';
+import 'package:youtekmusic/services/base_service.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-class TokenService extends IService {
+class TokenService extends BaseService {
   static const String TAG = "TokenService";
 
   WebViewController? _webViewController;

@@ -1,10 +1,10 @@
-import 'package:youtekmusic/enums/header_domain_enum.dart';
+import 'package:youtekmusic/enums/end_point_enum.dart';
 
 import 'irest_model.dart';
 
 class HttpRequestModel<U extends IRestModel, T extends IRestModel> {
   final String url;
-  final HeaderDomainEnum domain;
+  final EndPointEnum domain;
   U? body;
   T Function(Map<String, dynamic> json)? fromJson;
 

@@ -1,3 +1,4 @@
+import 'package:youtekmusic/constant/colors.dart';
 import 'package:youtekmusic/models/cache_models/playlist_model.dart';
 import 'package:youtekmusic/provider/services_provider.dart';
 import 'package:youtekmusic/services/cache_service.dart';
@@ -47,7 +48,7 @@ class _PlaylistViewState extends State<PlaylistView> {
         .where((playlist) => playlist!.musics!.length > 0)
         .toList();
     return Container(
-        color: Color.fromRGBO(34, 40, 49, 1),
+        color: ThemeColors.darkBlue,
         child: Column(
           children: [
             Expanded(

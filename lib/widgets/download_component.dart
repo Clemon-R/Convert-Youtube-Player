@@ -1,39 +1,18 @@
-import 'dart:async';
-import 'dart:io';
-
-import 'package:youtekmusic/constant/common.dart';
-import 'package:youtekmusic/enums/header_domain_enum.dart';
-import 'package:youtekmusic/models/rest_models/convert_mp3_rest_models/check_request_status_rest_model.dart';
-import 'package:youtekmusic/models/rest_models/convert_mp3_rest_models/start_convert_music_request_model.dart';
-import 'package:youtekmusic/models/rest_models/http_request_model.dart';
-import 'package:youtekmusic/services/http_service.dart';
-import 'package:youtekmusic/services/playlist_service.dart';
-import 'package:youtekmusic/services/token_service.dart';
-import 'package:youtekmusic/models/cache_models/audio_model.dart';
-import 'package:youtekmusic/models/rest_models/http_download_request_model.dart';
-import 'package:youtekmusic/provider/services_provider.dart';
-import 'package:youtekmusic/constant/urls.dart';
 import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
-class YoutubeDownload extends StatefulWidget {
-  // This class is the configuration for the state. It holds the
-  // values (in this case nothing) provided by the parent and used
-  // by the build  method of the State. Fields in a Widget
-  // subclass are always marked "final".
+class DownloadComponent extends StatelessWidget {
+  DownloadComponent(
+      {required this.onPressDownload,
+      required this.disable,
+      required this.infoMessage,
+      required this.downloadProgress});
 
-  YoutubeDownload({Key? key, this.onMusicDownloaded}) : super(key: key);
+  final Function() onPressDownload;
 
-  final Function(AudioModel path)? onMusicDownloaded;
-
-  @override
-  _YoutubeDownloadState createState() =>
-      _YoutubeDownloadState(this.onMusicDownloaded);
-}
-
-class _YoutubeDownloadState extends State<YoutubeDownload> {
-  static const TAG = "YoutubeDownload";
-  final PlaylistService _playlistService = ServicesProvider.get();
+  final bool disable;
+  final String infoMessage;
+  final double downloadProgress;
+  /*final PlaylistService _playlistService = ServicesProvider.get();
   final HttpService _httpService = ServicesProvider.get();
   final TokenService _tokenService = ServicesProvider.get();
   final Function(AudioModel path)? onMusicDownloaded;
@@ -41,22 +20,20 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
   WebViewController? _webViewController;
   Timer? _refreshTimer;
 
-  String _currentUrl = Urls.youtube;
-  String? _msg;
-  double _progress = 0.0;
-
+  String _currentUrl = Urls.youtube;*/
+/*
   bool _isDownloading = false;
-  String? _currentDownload;
+  String? _currentDownload;*/
 
-  _YoutubeDownloadState(this.onMusicDownloaded);
+  /*_YoutubeDownloadState(this.onMusicDownloaded);
 
   @override
   void initState() {
     super.initState();
     // Enable hybrid composition.
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
-  }
-
+  }*/
+/*
   _startDownload() async {
     if (!_tokenService.initiated || this._isDownloading) {
       if (!_tokenService.initiated)
@@ -192,17 +169,19 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
     );
     _httpService.downloadFile(downloadRequest);
   }
+*/
 
   @override
   Widget build(BuildContext context) {
-    var disabledBtn = this._isDownloading ||
+    /*var disabledBtn = this._isDownloading ||
         _playlistService.getMusicFromPlaylist(
                 Common.DEFAULT_PLAYLIST, this._currentUrl) !=
-            null;
+            null;*/
 
     var build = Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        this._hiddenBrowser(),
+        /*this._hiddenBrowser(),
         Expanded(
           child: WebView(
             initialUrl: this._currentUrl,
@@ -211,16 +190,16 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
               _webViewController = controller;
             },
           ),
-        ),
+        ),*/
         LinearProgressIndicator(
-          value: this._progress,
+          value: this.downloadProgress,
           backgroundColor: Colors.grey,
           minHeight: 10,
           valueColor: AlwaysStoppedAnimation(Colors.red),
         ),
       ],
     );
-
+/*
     if (this._msg != null && this._msg!.isNotEmpty)
       build.children
           .add(Text(this._msg!, style: TextStyle(color: Colors.white)));
@@ -243,13 +222,39 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
           : () {
               _startDownload();
             },
-    ));
+    ));*/
     return Container(
       color: Color.fromRGBO(34, 40, 49, 1.0),
-      child: build,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          LinearProgressIndicator(
+            value: this.downloadProgress,
+            backgroundColor: Colors.grey,
+            minHeight: 10,
+            valueColor: AlwaysStoppedAnimation(Colors.red),
+          ),
+          Text(this.infoMessage, style: TextStyle(color: Colors.white)),
+          ElevatedButton(
+            style: ButtonStyle(
+              padding: MaterialStateProperty.all(const EdgeInsets.all(8)),
+              minimumSize: MaterialStateProperty.all(Size(32, 32)),
+              backgroundColor: MaterialStateProperty.all(this.disable
+                  ? Color.fromRGBO(240, 84, 84, 0.5)
+                  : Color.fromRGBO(240, 84, 84, 1)),
+            ),
+            child: Text("Télécharger",
+                style: TextStyle(
+                    color: this.disable
+                        ? Color.fromRGBO(221, 221, 221, 1)
+                        : Colors.white)),
+            onPressed: !this.disable ? this.onPressDownload : null,
+          )
+        ],
+      ),
     );
   }
-
+/*
   Widget _hiddenBrowser() {
     return Container(
       height: 0,
@@ -286,5 +291,5 @@ class _YoutubeDownloadState extends State<YoutubeDownload> {
         },
       ),
     );
-  }
+  }*/
 }

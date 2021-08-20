@@ -1,21 +1,22 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:youtekmusic/models/cache_models/audio_model.dart';
 import 'package:youtekmusic/models/cache_models/playlist_model.dart';
-import 'package:youtekmusic/services/iservice.dart';
+import 'package:youtekmusic/services/base_service.dart';
 
-class PlayerService extends IService {
+class PlayerService extends BaseService {
   static const TAG = "PlayerService";
-  List<void Function(AudioModel audio)> _onAudioChange =
+
+  final List<void Function(AudioModel audio)> _onAudioChange =
       List.empty(growable: true);
-  List<void Function(AudioModel? audio, AudioPlayerState state)>
+  final List<void Function(AudioModel? audio, PlayerState state)>
       _onAudioStatusChange = List.empty(growable: true);
-  List<void Function(double seconds)> _onAudioDurationChange =
+  final List<void Function(double seconds)> _onAudioDurationChange =
       List.empty(growable: true);
-  List<void Function(dynamic event)> _onAudioPositionChange =
+  final List<void Function(dynamic event)> _onAudioPositionChange =
       List.empty(growable: true);
 
-  PlaylistModel? _currentPlaylist = null;
-  AudioModel? _currentAudio = null;
+  PlaylistModel? _currentPlaylist;
+  AudioModel? _currentAudio;
 
   final _audioPlayer = AudioPlayer();
 
@@ -32,7 +33,7 @@ class PlayerService extends IService {
       this._onAudioPositionChange.forEach((handler) => handler(event));
     });
     this._audioPlayer.onPlayerCompletion.listen((event) {
-      this.changeAudioStatus(this._currentAudio, AudioPlayerState.COMPLETED);
+      this.changeAudioStatus(this._currentAudio, PlayerState.COMPLETED);
     });
   }
 
@@ -45,8 +46,8 @@ class PlayerService extends IService {
     this.changeSeek(0);
   }
 
-  changeAudioStatus(AudioModel? audio, AudioPlayerState state) {
-    if (state == AudioPlayerState.COMPLETED && _currentPlaylist != null) {
+  changeAudioStatus(AudioModel? audio, PlayerState state) {
+    if (state == PlayerState.COMPLETED && _currentPlaylist != null) {
       this.playNext();
     } else
       this._onAudioStatusChange.forEach((handler) => handler(audio, state));
@@ -137,13 +138,13 @@ class PlayerService extends IService {
   }
 
   addListenerOnAudioStatusChange(
-      void Function(AudioModel? audio, AudioPlayerState state) handler) {
+      void Function(AudioModel? audio, PlayerState state) handler) {
     if (!_onAudioStatusChange.contains(handler))
       this._onAudioStatusChange.add(handler);
   }
 
   removeListenerOnAudioStatusChange(
-      void Function(AudioModel audio, AudioPlayerState state) handler) {
+      void Function(AudioModel audio, PlayerState state) handler) {
     if (_onAudioStatusChange.contains(handler))
       this._onAudioStatusChange.remove(handler);
   }

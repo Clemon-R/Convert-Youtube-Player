@@ -1,4 +1,4 @@
-import 'package:youtekmusic/enums/header_domain_enum.dart';
+import 'package:youtekmusic/enums/end_point_enum.dart';
 import 'package:youtekmusic/models/rest_models/irest_model.dart';
 import 'package:youtekmusic/constant/urls.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -54,6 +54,6 @@ class CheckRequestStatusRestModel extends IRestModel {
   HttpRequestModel<CheckRequestStatusRestModel, CheckRequestStatusRestModel>
       get request => HttpRequestModel(
           fromJson: (json) => CheckRequestStatusRestModel.fromJson(json),
-          domain: HeaderDomainEnum.Mp3Convert,
+          domain: EndPointEnum.Mp3Convert,
           url: Urls.mp3ConvertUrlCheck.replaceAll(":id", this.uuid));
 }

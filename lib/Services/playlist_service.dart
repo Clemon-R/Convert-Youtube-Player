@@ -1,10 +1,10 @@
 import 'package:youtekmusic/models/cache_models/audio_model.dart';
 import 'package:youtekmusic/models/cache_models/playlist_model.dart';
 import 'package:youtekmusic/provider/services_provider.dart';
-import 'package:youtekmusic/services/iservice.dart';
+import 'package:youtekmusic/services/base_service.dart';
 import 'package:youtekmusic/services/cache_service.dart';
 
-class PlaylistService extends IService {
+class PlaylistService extends BaseService {
   final _cacheService = ServicesProvider.get<CacheService>();
 
   PlaylistService();

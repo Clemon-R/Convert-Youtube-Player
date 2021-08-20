@@ -7,24 +7,23 @@ import 'dart:core';
 
 import 'package:flutter_svg/svg.dart';
 
-// ignore: must_be_immutable
-class AudioHeader extends StatefulWidget {
-  AudioHeader({Key? key}) : super(key: key);
+class AudioPlayerHeaderWidget extends StatefulWidget {
+  AudioPlayerHeaderWidget({Key? key}) : super(key: key);
 
   @override
-  _AudioHeaderState createState() => _AudioHeaderState();
+  _AudioPlayerHeaderWidgetState createState() =>
+      _AudioPlayerHeaderWidgetState();
 }
 
-class _AudioHeaderState extends State<AudioHeader> {
-  PlayerService _playerService = ServicesProvider.get();
+class _AudioPlayerHeaderWidgetState extends State<AudioPlayerHeaderWidget> {
+  final _playerService = ServicesProvider.get<PlayerService>();
 
-  String _leftDuration = "0:00";
   double _maxProgress = 0;
   String _duration = "0:00";
   double? _progress = 0;
 
   AudioModel? _currentAudio;
-  var _isPlaying = false;
+  bool _isPlaying = false;
 
   @override
   void initState() {
@@ -59,12 +58,8 @@ class _AudioHeaderState extends State<AudioHeader> {
   _onAudioPositionChange(dynamic event) {
     setState(() {
       var seconds = event.inSeconds % 60;
-      var left = this._maxProgress - event.inSeconds;
-      var leftseconds = left.toInt() % 60;
       this._duration =
           "${(event.inSeconds / 60).floor()}:${seconds <= 9 ? '0' : ''}$seconds";
-      this._leftDuration =
-          "${(left / 60).floor()}:${leftseconds <= 9 ? '0' : ''}$leftseconds";
       this._progress = event.inSeconds.toDouble();
     });
   }
@@ -81,15 +76,15 @@ class _AudioHeaderState extends State<AudioHeader> {
     });
   }
 
-  _onAudioStatusChange(AudioModel? audio, AudioPlayerState state) {
+  _onAudioStatusChange(AudioModel? audio, PlayerState state) {
     setState(() {
       switch (state) {
-        case AudioPlayerState.PLAYING:
+        case PlayerState.PLAYING:
           this._isPlaying = true;
           break;
-        case AudioPlayerState.COMPLETED:
-        case AudioPlayerState.PAUSED:
-        case AudioPlayerState.STOPPED:
+        case PlayerState.COMPLETED:
+        case PlayerState.PAUSED:
+        case PlayerState.STOPPED:
           this._isPlaying = false;
           break;
         default:

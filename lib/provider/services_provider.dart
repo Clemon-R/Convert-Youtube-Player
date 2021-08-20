@@ -1,5 +1,5 @@
 import 'package:async/async.dart';
-import 'package:youtekmusic/services/iservice.dart';
+import 'package:youtekmusic/services/base_service.dart';
 import 'package:youtekmusic/services/cache_service.dart';
 import 'package:youtekmusic/services/http_service.dart';
 import 'package:youtekmusic/services/player_service.dart';
@@ -10,8 +10,9 @@ import 'package:get_it/get_it.dart';
 class ServicesProvider {
   static const TAG = "ServicesProvider";
 
-  static AsyncMemoizer _memoizer = AsyncMemoizer();
-  static GetIt _getIt = GetIt.instance;
+  static final _getIt = GetIt.instance;
+  static bool _isReady = false;
+  static bool get isReady => _isReady;
 
   static prepareAllServices() {
     print("$TAG: Preparing all services...");
@@ -26,14 +27,15 @@ class ServicesProvider {
     print("$TAG: All services prepared");
   }
 
-  static Future<void> initializeApp() async {
+  static Future<bool> initializeApp() async {
     print("$TAG: Initializing the app...");
-    return _memoizer.runOnce(() async {
-      await _getIt.allReady();
-    });
+    await _getIt.allReady();
+
+    _isReady = true;
+    return true;
   }
 
-  static T get<T extends IService>() {
+  static T get<T extends BaseService>() {
     return _getIt.get<T>();
   }
 }

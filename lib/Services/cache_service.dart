@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtekmusic/models/cache_models/cache_model.dart';
-import 'package:youtekmusic/services/iservice.dart';
+import 'package:youtekmusic/services/base_service.dart';
 
-class CacheService extends IService {
+class CacheService extends BaseService {
   static const String TAG = "CacheService";
 
   CacheModel _content = CacheModel();

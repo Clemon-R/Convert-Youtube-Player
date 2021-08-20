@@ -1,29 +1,21 @@
-import 'package:audioplayers/audioplayers.dart';
-import 'package:youtekmusic/models/cache_models/audio_model.dart';
-import 'package:youtekmusic/models/cache_models/playlist_model.dart';
-import 'package:youtekmusic/provider/services_provider.dart';
-import 'package:youtekmusic/services/player_service.dart';
-import 'package:flutter/material.dart';
 import 'dart:core';
 
+import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:youtekmusic/models/cache_models/audio_model.dart';
+import 'package:youtekmusic/provider/services_provider.dart';
+import 'package:youtekmusic/services/player_service.dart';
 
-// ignore: must_be_immutable
-class AudioMp3Player extends StatefulWidget {
-  // This class is the configuration for the state. It holds the
-  // values (in this case nothing) provided by the parent and used
-  // by the build  method of the State. Fields in a Widget
-  // subclass are always marked "final".
-  final String? title;
-
-  AudioMp3Player({Key? key, this.title}) : super(key: key);
+class AudioPlayerWidget extends StatefulWidget {
+  AudioPlayerWidget({Key? key}) : super(key: key);
 
   @override
-  _AudioMp3PlayerState createState() => _AudioMp3PlayerState();
+  _AudioPlayerWidgetState createState() => _AudioPlayerWidgetState();
 }
 
-class _AudioMp3PlayerState extends State<AudioMp3Player> {
-  PlayerService _playerService = ServicesProvider.get();
+class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
+  final _playerService = ServicesProvider.get<PlayerService>();
 
   String _leftDuration = "0:00";
   double _maxProgress = 0;
@@ -31,8 +23,7 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
   double? _progress = 0;
 
   AudioModel? _currentAudio;
-  PlaylistModel? _playlist;
-  var _isPlaying = false;
+  bool _isPlaying = false;
 
   @override
   void initState() {
@@ -89,15 +80,15 @@ class _AudioMp3PlayerState extends State<AudioMp3Player> {
     });
   }
 
-  _onAudioStatusChange(AudioModel? audio, AudioPlayerState state) {
+  _onAudioStatusChange(AudioModel? audio, PlayerState state) {
     setState(() {
       switch (state) {
-        case AudioPlayerState.PLAYING:
+        case PlayerState.PLAYING:
           this._isPlaying = true;
           break;
-        case AudioPlayerState.COMPLETED:
-        case AudioPlayerState.PAUSED:
-        case AudioPlayerState.STOPPED:
+        case PlayerState.COMPLETED:
+        case PlayerState.PAUSED:
+        case PlayerState.STOPPED:
           this._isPlaying = false;
           break;
         default:

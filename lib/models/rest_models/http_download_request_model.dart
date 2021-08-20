@@ -1,12 +1,12 @@
 import 'dart:io';
 
-import 'package:youtekmusic/enums/header_domain_enum.dart';
+import 'package:youtekmusic/enums/end_point_enum.dart';
 
 class HttpDownloadRequestModel {
   final String fileName;
   final String url;
   final String path;
-  final HeaderDomainEnum domain = HeaderDomainEnum.Mp3Convert;
+  final EndPointEnum domain = EndPointEnum.Mp3Convert;
   Function(int downloaded, int sizeMax)? onProgress;
   Function(File file)? onDone;
   Function()? onFail;

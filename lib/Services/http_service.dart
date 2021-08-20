@@ -7,25 +7,25 @@ import 'dart:typed_data';
 import 'package:youtekmusic/models/rest_models/http_response_model.dart';
 import 'package:youtekmusic/provider/services_provider.dart';
 import 'package:youtekmusic/services/token_service.dart';
-import 'package:youtekmusic/enums/header_domain_enum.dart';
+import 'package:youtekmusic/enums/end_point_enum.dart';
 import 'package:youtekmusic/models/rest_models/irest_model.dart';
 import 'package:youtekmusic/models/rest_models/http_download_request_model.dart';
 import 'package:youtekmusic/models/rest_models/http_request_model.dart';
-import 'package:youtekmusic/services/iservice.dart';
+import 'package:youtekmusic/services/base_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-class HttpService extends IService {
+class HttpService extends BaseService {
   static const String TAG = "HttpService";
 
   final _tokenService = ServicesProvider.get<TokenService>();
 
-  Map<String, String> headerSelector(HeaderDomainEnum type) {
+  Map<String, String> headerSelector(EndPointEnum type) {
     Map<String, String> result = {};
     switch (type) {
-      case HeaderDomainEnum.Mp3Convert:
+      case EndPointEnum.Mp3Convert:
         result = {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
@@ -38,7 +38,7 @@ class HttpService extends IService {
         if (this._tokenService.cookie != null)
           result["cookie"] = _tokenService.cookie! + ";";
         break;
-      case HeaderDomainEnum.Youtube:
+      case EndPointEnum.Youtube:
         break;
     }
     return result;
