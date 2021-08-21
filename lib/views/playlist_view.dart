@@ -65,7 +65,7 @@ class _PlaylistViewState extends State<PlaylistView> {
                                 padding: MaterialStateProperty.all(
                                     const EdgeInsets.all(0))),
                             child: Image.network(
-                              firstAudio.thumbnailUrl,
+                              firstAudio.thumbnailUrl ?? "",
                             ),
                             onPressed: () {
                               this._goToPlaylist(playlist);

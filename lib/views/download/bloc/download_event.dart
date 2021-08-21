@@ -19,3 +19,5 @@ class DownloadNewYoutubeUrl extends DownloadEvent {
 }
 
 class DownloadStart extends DownloadEvent {}
+
+class DownloadRefresh extends DownloadEvent {}

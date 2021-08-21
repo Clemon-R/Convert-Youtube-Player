@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
-class ViewModelsProvider {
-  static const TAG = "ViewModelsProvider";
+class BlocsProvider {
+  static const TAG = "BlocsProvider";
 
   static GetIt _getIt = GetIt.instance;
 

@@ -6,10 +6,10 @@ part 'audio_model.g.dart';
 @JsonSerializable(explicitToJson: true)
 class AudioModel {
   String pathFile;
-  String title;
-  String author;
+  String? title;
+  String? author;
   String youtubeUrl;
-  String thumbnailUrl;
+  String? thumbnailUrl;
 
   PlaylistModel? playlist;
 

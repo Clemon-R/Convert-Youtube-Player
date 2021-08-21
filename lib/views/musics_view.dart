@@ -54,7 +54,7 @@ class _MusicsViewState extends State<MusicsView> {
                                 padding: MaterialStateProperty.all<
                                     EdgeInsetsGeometry>(EdgeInsets.all(0))),
                             child: Image.network(
-                              audio.thumbnailUrl,
+                              audio.thumbnailUrl ?? "",
                             ),
                             onPressed: () {
                               this._playerService.changeAudio(audio);
@@ -70,12 +70,12 @@ class _MusicsViewState extends State<MusicsView> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(audio.title,
+                                    Text(audio.title ?? "Title",
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 12,
                                         )),
-                                    Text(audio.author,
+                                    Text(audio.author ?? "Author",
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 10,

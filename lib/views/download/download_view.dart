@@ -6,27 +6,27 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:youtekmusic/enums/end_point_enum.dart';
 import 'package:youtekmusic/enums/urls_enum.dart';
-import 'package:youtekmusic/provider/view_models_provider.dart';
+import 'package:youtekmusic/provider/blocs_provider.dart';
 import 'package:youtekmusic/views/download/bloc/download_bloc.dart';
 import 'package:youtekmusic/views/download/bloc/download_event.dart';
 import 'package:youtekmusic/views/download/bloc/download_state.dart';
-import 'package:youtekmusic/widgets/download_component.dart';
+import 'package:youtekmusic/widgets/download_widget.dart';
 
 class DownloadView extends StatelessWidget {
   static const TAG = "DownloadView";
 
   late final DownloadBloc _bloc;
 
-  WebViewController? _webViewController;
+  late final WebViewController _webViewController;
   Timer? _urlMonitoringTimer;
   String? _currentYoutubeUrl;
 
   DownloadView() {
-    if (ViewModelsProvider.isSaved<DownloadBloc>()) {
-      this._bloc = ViewModelsProvider.get();
+    if (BlocsProvider.isSaved<DownloadBloc>()) {
+      this._bloc = BlocsProvider.get();
     } else {
       this._bloc = DownloadBloc();
-      ViewModelsProvider.set(this._bloc);
+      BlocsProvider.set(this._bloc);
     }
   }
 
@@ -69,19 +69,6 @@ class DownloadView extends StatelessWidget {
         },
       ),
     );
-    /*return SafeArea(
-      child: Scaffold(
-        body: Column(
-          children: [
-            Expanded(
-              child: YoutubeDownload(onMusicDownloaded: (audio) {
-                this._playerService.changeAudio(audio);
-              }),
-            ),
-          ],
-        ),
-      ),
-    );*/
   }
 
   Widget _buildView(BuildContext context) {
@@ -98,7 +85,7 @@ class DownloadView extends StatelessWidget {
           this._urlMonitoringTimer =
               Timer.periodic(const Duration(milliseconds: 500), (_) async {
             try {
-              var url = await this._webViewController?.currentUrl();
+              var url = await this._webViewController.currentUrl();
               if (url != null && url != this._currentYoutubeUrl) {
                 print("$TAG: New youtube url $url");
                 this._bloc.add(DownloadNewYoutubeUrl(url: url));
@@ -139,7 +126,6 @@ class DownloadView extends StatelessWidget {
         javascriptMode: JavascriptMode.unrestricted,
         onWebViewCreated: (controller) {
           print("$TAG: Hidden Webview created");
-          this._webViewController = controller;
           _bloc.add(DownloadHiddenBrowserInitiated(controller: controller));
         },
         onPageFinished: (url) async {

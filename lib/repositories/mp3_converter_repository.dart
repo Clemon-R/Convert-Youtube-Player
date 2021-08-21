@@ -47,7 +47,7 @@ class Mp3ConverterRepository extends BaseService {
         domain: EndPointEnum.Mp3Convert,
         url: UrlsEnum.csrf.toUrlString(EndPointEnum.Mp3Convert));
     var response = await _httpService.get(requestConfig);
-    if (response.code != HttpStatus.ok)
+    if (response.code != HttpStatus.noContent)
       throw Exception("Error while getting cookies");
     return response.cookies;
   }
