@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:youtekmusic/constant/colors.dart';
-import 'package:youtekmusic/views/download_view.dart';
+import 'package:youtekmusic/views/download/download_view.dart';
 import 'package:youtekmusic/views/musics_view.dart';
 import 'package:youtekmusic/views/playlist_view.dart';
 import 'package:youtekmusic/views/settings_view.dart';

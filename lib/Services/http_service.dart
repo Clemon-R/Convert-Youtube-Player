@@ -16,13 +16,14 @@ import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:youtekmusic/enums/urls_enum.dart';
 
 class HttpService extends BaseService {
   static const String TAG = "HttpService";
 
   final _tokenService = ServicesProvider.get<TokenService>();
 
-  Map<String, String> headerSelector(EndPointEnum type) {
+  Map<String, String> _headerSelector(EndPointEnum type) {
     Map<String, String> result = {};
     switch (type) {
       case EndPointEnum.Mp3Convert:
@@ -47,50 +48,52 @@ class HttpService extends BaseService {
   Future<HttpResponseModel<T>> post<U extends IRestModel, T extends IRestModel>(
       HttpRequestModel<U, T> request) async {
     print("$TAG: Post request on Url(${request.url})");
-    var json = request.body != null ? jsonEncode(request.body) : null;
-    print("$TAG: Post request Body($json)");
 
-    var requestResult = await http.Client().post(Uri.parse(request.url),
-        headers: headerSelector(request.domain), body: json);
-    // requestResult.request?.headers.entries.forEach((element) {
-    //   print("$TAG: Broken request ${element.key} ${element.value}");
-    // });
-    var body = requestResult.body;
-    var headers = requestResult.headers;
-    print("$TAG: Post response json\n$body");
-    inspect(body);
-    T? content;
-    if (request.fromJson != null) {
-      var jsonObj = jsonDecode(body);
-      content = request.fromJson!(jsonObj);
-    }
-    print("$TAG: Post response obj");
-    inspect(content);
-    return HttpResponseModel(
-        code: requestResult.statusCode,
-        content: content,
-        cookie: headers["set-cookie"]);
+    return this._executeWithErrorHandler(() async {
+      var json = request.body != null ? jsonEncode(request.body) : null;
+      print("$TAG: Post request Body($json)");
+
+      var requestResult = await http.Client().post(Uri.parse(request.url),
+          headers: _headerSelector(request.domain), body: json);
+
+      return this._extractReponse(request, requestResult);
+    });
   }
 
   Future<HttpResponseModel<T>> get<U extends IRestModel, T extends IRestModel>(
       HttpRequestModel<U, T> request) async {
     print("$TAG: Get request on Url(${request.url})");
-    var requestResult = await http.get(Uri.parse(request.url),
-        headers: headerSelector(request.domain));
+
+    return this._executeWithErrorHandler(() async {
+      var requestResult = await http.get(Uri.parse(request.url),
+          headers: _headerSelector(request.domain));
+
+      return this._extractReponse(request, requestResult);
+    });
+  }
+
+  Future<HttpResponseModel<T>> _executeWithErrorHandler<T extends IRestModel>(
+      Future<HttpResponseModel<T>> Function() action) async {
+    return await action.call();
+  }
+
+  HttpResponseModel<T>
+      _extractReponse<U extends IRestModel, T extends IRestModel>(
+          HttpRequestModel<U, T> request, Response requestResult) {
     var body = requestResult.body;
     var headers = requestResult.headers;
-    print("$TAG: Get response json\n$body");
+    print("$TAG: Response json\n$body");
     T? content;
     if (request.fromJson != null) {
       var jsonObj = jsonDecode(body);
       content = request.fromJson!(jsonObj);
-      print("$TAG: Get response obj");
+      print("$TAG: Response obj");
       inspect(content);
     }
     return HttpResponseModel(
         code: requestResult.statusCode,
         content: content,
-        cookie: headers["set-cookie"]);
+        cookies: headers["set-cookie"]);
   }
 
   Future<void> downloadFile(HttpDownloadRequestModel request) async {

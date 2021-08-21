@@ -7,34 +7,24 @@ import 'package:youtekmusic/services/base_service.dart';
 class CacheService extends BaseService {
   static const String TAG = "CacheService";
 
-  CacheModel _content = CacheModel();
+  CacheModel _content = CacheModel(playlists: {});
   CacheModel get content => this._content;
 
   bool _isReady = false;
   bool get isReady => this._isReady;
 
-  List<Function()> _onReady = [];
-  List<Function()> get onReady => this._onReady;
-
   late final SharedPreferences _prefs;
 
-  CacheService() {
+  _initService() async {
     print("$TAG: Init...");
-    SharedPreferences.getInstance().then((value) async {
-      this._prefs = value;
-      this._isReady = true;
-
-      await this._loadCache();
-      print("$TAG: Initiated");
-
-      this._onReady.forEach((element) => element.call());
-    });
+    this._prefs = await SharedPreferences.getInstance();
+    this._isReady = true;
+    print("$TAG: Initiated");
   }
 
-  _loadCache() async {
+  loadCache() async {
     if (!this._isReady) {
-      print("$TAG(ERROR): Not ready yet");
-      return;
+      await this._initService();
     }
 
     print("$TAG: Loading cache...");
@@ -51,8 +41,7 @@ class CacheService extends BaseService {
 
   saveCache() async {
     if (!this._isReady) {
-      print("$TAG(ERROR): Not ready yet");
-      return;
+      await this._initService();
     }
 
     print("$TAG: Saving cache...");

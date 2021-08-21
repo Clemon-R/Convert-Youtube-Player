@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:youtekmusic/constant/common.dart';
+import 'package:flutter/material.dart';
+import 'package:youtekmusic/constant/strings.dart';
 import 'package:youtekmusic/provider/services_provider.dart';
 import 'package:youtekmusic/services/cache_service.dart';
-import 'package:flutter/material.dart';
 
 class SettingsView extends StatefulWidget {
   static const String TAG = "CacheService";
@@ -26,11 +26,11 @@ class _SettingsViewState extends State<SettingsView> {
       this._isBusy = true;
     });
     var musics = _cacheService
-            .content.playlists[Common.DEFAULT_PLAYLIST]?.musics?.values
+            .content.playlists[Strings.DEFAULT_PLAYLIST]?.musics.values
             .toList() ??
         List.empty();
     for (var audio in musics) {
-      var file = File(audio!.pathFile!);
+      var file = File(audio.pathFile);
 
       if (!await file.exists()) continue;
       print("${SettingsView.TAG}: Deleting ${audio.title}...");
@@ -48,7 +48,7 @@ class _SettingsViewState extends State<SettingsView> {
       this._isBusy = true;
     });
     _cacheService.content.playlists.forEach((key, value) {
-      value!.musics!.clear();
+      value.musics.clear();
     });
     _cacheService.content.playlists.clear();
     await _cacheService.saveCache();

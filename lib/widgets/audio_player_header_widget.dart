@@ -146,7 +146,7 @@ class _AudioPlayerHeaderWidgetState extends State<AudioPlayerHeaderWidget> {
                   color: Colors.white,
                   child: this._currentAudio != null
                       ? Image.network(
-                          _currentAudio!.thumbnailUrl!,
+                          _currentAudio!.thumbnailUrl,
                           width: 134,
                           height: 134,
                         )

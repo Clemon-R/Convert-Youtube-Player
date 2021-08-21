@@ -22,7 +22,7 @@ class PlayerService extends BaseService {
 
   PlayerService() {
     _onAudioChange.add((audio) {
-      this._audioPlayer.setUrl(audio.pathFile!, isLocal: true);
+      this._audioPlayer.setUrl(audio.pathFile, isLocal: true);
     });
     this._audioPlayer.onDurationChanged.listen((event) {
       this
@@ -61,8 +61,8 @@ class PlayerService extends BaseService {
     print("$TAG: Playing previous music...");
     var toPlay = false;
     AudioModel? last;
-    for (var music in this._currentPlaylist!.musics!.values) {
-      if (music!.youtubeUrl == this._currentAudio!.youtubeUrl) {
+    for (var music in this._currentPlaylist!.musics.values) {
+      if (music.youtubeUrl == this._currentAudio!.youtubeUrl) {
         toPlay = true;
         break;
       } else {
@@ -79,8 +79,8 @@ class PlayerService extends BaseService {
     print("$TAG: Playing next music...");
     var nextToPlay = false;
     AudioModel? next;
-    for (var music in this._currentPlaylist!.musics!.values) {
-      if (music!.youtubeUrl == this._currentAudio!.youtubeUrl) {
+    for (var music in this._currentPlaylist!.musics.values) {
+      if (music.youtubeUrl == this._currentAudio!.youtubeUrl) {
         nextToPlay = true;
       } else if (nextToPlay) {
         next = music;

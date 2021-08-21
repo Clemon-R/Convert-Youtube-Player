@@ -4,17 +4,18 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:youtekmusic/constant/urls.dart';
+import 'package:youtekmusic/enums/end_point_enum.dart';
+import 'package:youtekmusic/enums/urls_enum.dart';
 import 'package:youtekmusic/provider/view_models_provider.dart';
-import 'package:youtekmusic/view_models/donwload_view/download_bloc.dart';
-import 'package:youtekmusic/view_models/donwload_view/download_event.dart';
-import 'package:youtekmusic/view_models/donwload_view/download_state.dart';
+import 'package:youtekmusic/views/download/bloc/download_bloc.dart';
+import 'package:youtekmusic/views/download/bloc/download_event.dart';
+import 'package:youtekmusic/views/download/bloc/download_state.dart';
 import 'package:youtekmusic/widgets/download_component.dart';
 
 class DownloadView extends StatelessWidget {
   static const TAG = "DownloadView";
 
-  late final DownloadBloc _viewModel;
+  late final DownloadBloc _bloc;
 
   WebViewController? _webViewController;
   Timer? _urlMonitoringTimer;
@@ -22,10 +23,10 @@ class DownloadView extends StatelessWidget {
 
   DownloadView() {
     if (ViewModelsProvider.isSaved<DownloadBloc>()) {
-      this._viewModel = ViewModelsProvider.get();
+      this._bloc = ViewModelsProvider.get();
     } else {
-      this._viewModel = DownloadBloc();
-      ViewModelsProvider.set(this._viewModel);
+      this._bloc = DownloadBloc();
+      ViewModelsProvider.set(this._bloc);
     }
   }
 
@@ -34,7 +35,7 @@ class DownloadView extends StatelessWidget {
     // Enable hybrid composition.
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
     return BlocProvider(
-      create: (context) => _viewModel,
+      create: (context) => _bloc,
       child: BlocBuilder<DownloadBloc, DownloadState>(
         builder: (context, state) {
           if (state is DownloadInitiating) {
@@ -54,7 +55,7 @@ class DownloadView extends StatelessWidget {
                 DownloadComponent(
                   onPressDownload: () {
                     print("$TAG: Start download");
-                    this._viewModel.add(DownloadStart());
+                    this._bloc.add(DownloadStart());
                   },
                   disable: state.isDownloading,
                   downloadProgress: state.downloadProgress,
@@ -100,7 +101,7 @@ class DownloadView extends StatelessWidget {
               var url = await this._webViewController?.currentUrl();
               if (url != null && url != this._currentYoutubeUrl) {
                 print("$TAG: New youtube url $url");
-                this._viewModel.add(DownloadNewYoutubeUrl(url: url));
+                this._bloc.add(DownloadNewYoutubeUrl(url: url));
                 this._currentYoutubeUrl = url;
               }
             } on Exception catch (_) {
@@ -134,17 +135,16 @@ class DownloadView extends StatelessWidget {
       height: 1,
       width: 1,
       child: WebView(
-        initialUrl: Urls.mp3ConvertUrlBrowser,
+        initialUrl: UrlsEnum.browser.toUrlString(EndPointEnum.Mp3Convert),
         javascriptMode: JavascriptMode.unrestricted,
         onWebViewCreated: (controller) {
           print("$TAG: Hidden Webview created");
           this._webViewController = controller;
-          _viewModel
-              .add(DownloadHiddenBrowserInitiated(controller: controller));
+          _bloc.add(DownloadHiddenBrowserInitiated(controller: controller));
         },
         onPageFinished: (url) async {
           print("$TAG: Page loaded, trying to get all token...");
-          _viewModel.add(DownloadHiddenBrowserLoaded());
+          _bloc.add(DownloadHiddenBrowserLoaded());
         },
       ),
     );

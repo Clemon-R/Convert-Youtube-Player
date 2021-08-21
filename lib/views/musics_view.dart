@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:youtekmusic/constant/common.dart';
+import 'package:youtekmusic/constant/strings.dart';
 import 'package:youtekmusic/models/cache_models/playlist_model.dart';
 import 'package:youtekmusic/provider/services_provider.dart';
 import 'package:youtekmusic/services/cache_service.dart';
@@ -28,19 +28,11 @@ class _MusicsViewState extends State<MusicsView> {
   _MusicsViewState(this._playlist);
 
   @override
-  void initState() {
-    this._cacheService.onReady.add(() {
-      setState(() {});
-    });
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     var defaultPlaylist = this._playlist;
     if (this._playlist == null)
       defaultPlaylist =
-          _playlistService.getPlaylistByName(Common.DEFAULT_PLAYLIST);
+          _playlistService.getPlaylistByName(Strings.DEFAULT_PLAYLIST);
     var musics = defaultPlaylist?.musics ?? Map();
     return Container(
         color: Color.fromRGBO(34, 40, 49, 1),
@@ -51,7 +43,7 @@ class _MusicsViewState extends State<MusicsView> {
                   shrinkWrap: true,
                   itemCount: musics.length,
                   itemBuilder: (context, index) {
-                    var audio = musics.values.elementAt(index)!;
+                    var audio = musics.values.elementAt(index);
                     return Container(
                       color: Color.fromRGBO(48, 71, 94, 1),
                       height: 60,
@@ -62,7 +54,7 @@ class _MusicsViewState extends State<MusicsView> {
                                 padding: MaterialStateProperty.all<
                                     EdgeInsetsGeometry>(EdgeInsets.all(0))),
                             child: Image.network(
-                              audio.thumbnailUrl!,
+                              audio.thumbnailUrl,
                             ),
                             onPressed: () {
                               this._playerService.changeAudio(audio);
@@ -78,12 +70,12 @@ class _MusicsViewState extends State<MusicsView> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(audio.title ?? "Titre",
+                                    Text(audio.title,
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 12,
                                         )),
-                                    Text(audio.author ?? "Autheur",
+                                    Text(audio.author,
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 10,
@@ -111,7 +103,7 @@ class _MusicsViewState extends State<MusicsView> {
                               color: Colors.white,
                             ),
                             onPressed: () async {
-                              var file = File(audio.pathFile!);
+                              var file = File(audio.pathFile);
 
                               if (!await file.exists()) return;
                               await file.delete();

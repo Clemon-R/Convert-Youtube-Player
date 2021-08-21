@@ -24,9 +24,6 @@ class _PlaylistViewState extends State<PlaylistView> {
 
   @override
   void initState() {
-    this._cacheService.onReady.add(() {
-      setState(() {});
-    });
     super.initState();
   }
 
@@ -45,7 +42,7 @@ class _PlaylistViewState extends State<PlaylistView> {
   Widget _playlistListView() {
     var playlists = _playlistService
         .getAllPlaylists()
-        .where((playlist) => playlist!.musics!.length > 0)
+        .where((playlist) => playlist!.musics.length > 0)
         .toList();
     return Container(
         color: ThemeColors.darkBlue,
@@ -57,7 +54,7 @@ class _PlaylistViewState extends State<PlaylistView> {
                   itemCount: playlists.length,
                   itemBuilder: (context, index) {
                     var playlist = playlists[index]!;
-                    var firstAudio = playlist.musics!.values.first!;
+                    var firstAudio = playlist.musics.values.first;
                     return Container(
                       color: Color.fromRGBO(48, 71, 94, 1),
                       height: 60,
@@ -68,7 +65,7 @@ class _PlaylistViewState extends State<PlaylistView> {
                                 padding: MaterialStateProperty.all(
                                     const EdgeInsets.all(0))),
                             child: Image.network(
-                              firstAudio.thumbnailUrl!,
+                              firstAudio.thumbnailUrl,
                             ),
                             onPressed: () {
                               this._goToPlaylist(playlist);
@@ -84,12 +81,12 @@ class _PlaylistViewState extends State<PlaylistView> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(playlist.title ?? "Titre",
+                                    Text(playlist.title,
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 12,
                                         )),
-                                    Text("${playlist.musics!.length} Musiques",
+                                    Text("${playlist.musics.length} Musiques",
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 10,

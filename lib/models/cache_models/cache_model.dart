@@ -1,23 +1,15 @@
+import 'package:json_annotation/json_annotation.dart';
 import 'package:youtekmusic/models/cache_models/playlist_model.dart';
 
+part 'cache_model.g.dart';
+
+@JsonSerializable(explicitToJson: true)
 class CacheModel {
-  Map<String?, PlaylistModel?> playlists = Map();
+  final Map<String, PlaylistModel> playlists;
 
-  CacheModel();
+  CacheModel({required this.playlists});
 
-  CacheModel.fromJson(Map<String, dynamic> json)
-      : playlists = json['playlists'] != null
-            ? Map.fromIterable(
-                (json['playlists'] as List<dynamic>)
-                    .map((json) => PlaylistModel.fromJson(json))
-                    .toList(),
-                key: (playlist) => (playlist as PlaylistModel).title,
-                value: (value) => value)
-            : Map();
-
-  Map<String, dynamic> toJson() => {
-        'playlists': playlists.values
-            .map((playlist) => playlist!.toJson())
-            .toList(growable: false)
-      };
+  factory CacheModel.fromJson(Map<String, dynamic> json) =>
+      _$CacheModelFromJson(json);
+  Map<String, dynamic> toJson() => _$CacheModelToJson(this);
 }

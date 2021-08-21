@@ -15,9 +15,9 @@ class PlaylistService extends BaseService {
     if (!_cacheService.content.playlists.containsKey(playlistName)) return null;
 
     var data = _cacheService.content.playlists[playlistName]!;
-    if (!data.musics!.containsKey(youtubeUrl)) return null;
+    if (!data.musics.containsKey(youtubeUrl)) return null;
 
-    return data.musics![youtubeUrl];
+    return data.musics[youtubeUrl];
   }
 
   List<PlaylistModel?> getAllPlaylists() {
@@ -31,7 +31,7 @@ class PlaylistService extends BaseService {
       return false;
 
     var data = _cacheService.content.playlists[playlistName]!;
-    data.musics![audio.youtubeUrl] = audio;
+    data.musics[audio.youtubeUrl] = audio;
     audio.playlist = data;
     _cacheService.saveCache();
     return true;
@@ -39,7 +39,7 @@ class PlaylistService extends BaseService {
 
   /// You just to give a [playlist], [audio] and then the playlist will be returned
   PlaylistModel addMusicToPlaylist(PlaylistModel playlist, AudioModel audio) {
-    playlist.musics![audio.youtubeUrl] = audio;
+    playlist.musics[audio.youtubeUrl] = audio;
     audio.playlist = playlist;
     _cacheService.saveCache();
     return playlist;
@@ -48,7 +48,7 @@ class PlaylistService extends BaseService {
   /// You just to give a [playlist], [youtubeUrl] and then the playlist will be returned
   PlaylistModel removeMusicToPlaylist(
       PlaylistModel playlist, String? youtubeUrl) {
-    playlist.musics!.remove(youtubeUrl);
+    playlist.musics.remove(youtubeUrl);
     _cacheService.saveCache();
     return playlist;
   }
