@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:youtekmusic/constant/colors.dart';
+import 'package:youtekmusic/constant/theme_colors.dart';
 import 'package:youtekmusic/views/download/download_view.dart';
-import 'package:youtekmusic/views/musics_view.dart';
-import 'package:youtekmusic/views/playlist_view.dart';
+import 'package:youtekmusic/views/musics/musics_view.dart';
+import 'package:youtekmusic/views/playlist/playlist_view.dart';
 import 'package:youtekmusic/views/settings_view.dart';
 import 'package:youtekmusic/widgets/audio_player_header_widget.dart';
 
@@ -105,7 +105,7 @@ class _MainViewState extends State<MainView> with TickerProviderStateMixin {
   BottomNavigationBarItem _buildTabMenuItem<T extends Widget>(
       {required String iconAssetPath, required String title}) {
     return BottomNavigationBarItem(
-        backgroundColor: Color.fromRGBO(48, 71, 94, 1),
+        backgroundColor: ThemeColors.lightBlue,
         icon: this._buildTabMenuButton(
             SvgPicture.asset(
               iconAssetPath,
@@ -121,8 +121,8 @@ class _MainViewState extends State<MainView> with TickerProviderStateMixin {
         height: kBottomNavigationBarHeight,
         child: Material(
           color: index == this._currentViewIndex
-              ? Color.fromRGBO(48, 71, 94, 1)
-              : Color.fromRGBO(34, 40, 49, 1),
+              ? ThemeColors.lightBlue
+              : ThemeColors.darkBlue,
           child: InkWell(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,

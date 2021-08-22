@@ -22,34 +22,42 @@ class CacheService extends BaseService {
     print("$TAG: Initiated");
   }
 
-  loadCache() async {
+  Future loadCache() async {
     if (!this._isReady) {
       await this._initService();
     }
 
-    print("$TAG: Loading cache...");
-    var content = this._prefs.getString(TAG);
-    if (content == null) {
-      print("$TAG: No cache found");
-      return;
+    try {
+      print("$TAG: Loading cache...");
+      var content = this._prefs.getString(TAG);
+      if (content == null) {
+        print("$TAG: No cache found");
+        return;
+      }
+      print("$TAG: Json content\n$content");
+      var json = jsonDecode(content);
+      this._content = CacheModel.fromJson(json);
+      print("$TAG: Cache loaded");
+    } catch (e) {
+      print(e);
     }
-    print("$TAG: Json content\n$content");
-    var json = jsonDecode(content);
-    this._content = CacheModel.fromJson(json);
-    print("$TAG: Cache loaded");
   }
 
-  saveCache() async {
+  Future saveCache() async {
     if (!this._isReady) {
       await this._initService();
     }
 
-    print("$TAG: Saving cache...");
-    var content = this._content.toJson();
-    print("$TAG: Json content\n$content");
-    var json = jsonEncode(content);
-    print("$TAG: Json\n$json");
-    this._prefs.setString(TAG, json);
-    print("$TAG: Cache saved");
+    try {
+      print("$TAG: Saving cache...");
+      var content = this._content.toJson();
+      print("$TAG: Json content\n$content");
+      var json = jsonEncode(content);
+      print("$TAG: Json\n$json");
+      this._prefs.setString(TAG, json);
+      print("$TAG: Cache saved");
+    } catch (e) {
+      print(e);
+    }
   }
 }

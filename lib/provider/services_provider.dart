@@ -38,7 +38,7 @@ class ServicesProvider {
     print("$TAG: Initializing the app...");
     await _getIt.allReady();
 
-    _getIt.get<CacheService>().loadCache();
+    await _getIt.get<CacheService>().loadCache();
 
     _isReady = true;
     return true;

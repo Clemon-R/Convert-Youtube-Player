@@ -1,4 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:youtekmusic/constant/theme_colors.dart';
 import 'package:youtekmusic/models/cache_models/audio_model.dart';
 import 'package:youtekmusic/provider/services_provider.dart';
 import 'package:youtekmusic/services/player_service.dart';
@@ -97,9 +98,9 @@ class _AudioPlayerHeaderWidgetState extends State<AudioPlayerHeaderWidget> {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: Color.fromRGBO(48, 71, 94, 1),
+        color: ThemeColors.lightBlue,
         border: Border(
-          bottom: BorderSide(width: 1.0, color: Color.fromRGBO(34, 40, 49, 1)),
+          bottom: BorderSide(width: 1.0, color: ThemeColors.darkBlue),
         ),
       ),
       height: 150,

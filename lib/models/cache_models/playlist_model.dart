@@ -10,7 +10,12 @@ class PlaylistModel {
 
   PlaylistModel({required this.title, required this.musics});
 
-  factory PlaylistModel.fromJson(Map<String, dynamic> json) =>
-      _$PlaylistModelFromJson(json);
+  factory PlaylistModel.fromJson(Map<String, dynamic> json) {
+    var result = _$PlaylistModelFromJson(json);
+    result.musics.values.forEach((element) {
+      element.playlist = result;
+    });
+    return result;
+  }
   Map<String, dynamic> toJson() => _$PlaylistModelToJson(this);
 }

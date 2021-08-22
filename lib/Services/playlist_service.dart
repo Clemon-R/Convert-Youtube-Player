@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:youtekmusic/models/cache_models/audio_model.dart';
 import 'package:youtekmusic/models/cache_models/playlist_model.dart';
 import 'package:youtekmusic/provider/services_provider.dart';
@@ -7,7 +9,15 @@ import 'package:youtekmusic/services/cache_service.dart';
 class PlaylistService extends BaseService {
   final _cacheService = ServicesProvider.get<CacheService>();
 
-  PlaylistService();
+  // ignore: close_sinks
+  final StreamController<PlaylistModel> _playlistController =
+      StreamController<PlaylistModel>();
+  late final Stream<PlaylistModel> _playlistStream;
+  Stream<PlaylistModel> get onPlaylistChange => this._playlistStream;
+
+  PlaylistService() {
+    this._playlistStream = this._playlistController.stream.asBroadcastStream();
+  }
 
   /// You just to give a [playlistName], [youtubeUrl] and then the audio will be returned
   /// Return a `AudioModel` on if it exists
@@ -33,6 +43,7 @@ class PlaylistService extends BaseService {
     var data = _cacheService.content.playlists[playlistName]!;
     data.musics[audio.youtubeUrl] = audio;
     audio.playlist = data;
+    _playlistController.add(data);
     _cacheService.saveCache();
     return true;
   }
@@ -41,6 +52,7 @@ class PlaylistService extends BaseService {
   PlaylistModel addMusicToPlaylist(PlaylistModel playlist, AudioModel audio) {
     playlist.musics[audio.youtubeUrl] = audio;
     audio.playlist = playlist;
+    _playlistController.add(playlist);
     _cacheService.saveCache();
     return playlist;
   }
@@ -49,6 +61,7 @@ class PlaylistService extends BaseService {
   PlaylistModel removeMusicToPlaylist(
       PlaylistModel playlist, String? youtubeUrl) {
     playlist.musics.remove(youtubeUrl);
+    _playlistController.add(playlist);
     _cacheService.saveCache();
     return playlist;
   }
@@ -71,6 +84,7 @@ class PlaylistService extends BaseService {
     var data = PlaylistModel(title: playlistName, musics: Map());
 
     _cacheService.content.playlists[playlistName] = data;
+    _playlistController.add(data);
     _cacheService.saveCache();
 
     return data;

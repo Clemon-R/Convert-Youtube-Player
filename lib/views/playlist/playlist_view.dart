@@ -1,10 +1,10 @@
-import 'package:youtekmusic/constant/colors.dart';
+import 'package:youtekmusic/constant/theme_colors.dart';
 import 'package:youtekmusic/models/cache_models/playlist_model.dart';
 import 'package:youtekmusic/provider/services_provider.dart';
 import 'package:youtekmusic/services/cache_service.dart';
 import 'package:youtekmusic/services/player_service.dart';
 import 'package:youtekmusic/services/playlist_service.dart';
-import 'package:youtekmusic/views/musics_view.dart';
+import 'package:youtekmusic/views/musics/musics_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -56,7 +56,7 @@ class _PlaylistViewState extends State<PlaylistView> {
                     var playlist = playlists[index]!;
                     var firstAudio = playlist.musics.values.first;
                     return Container(
-                      color: Color.fromRGBO(48, 71, 94, 1),
+                      color: ThemeColors.lightBlue,
                       height: 60,
                       child: Row(
                         children: [
@@ -122,16 +122,15 @@ class _PlaylistViewState extends State<PlaylistView> {
 
   Widget _currentPlaylistView() {
     return Container(
-      color: Color.fromRGBO(34, 40, 49, 1),
+      color: ThemeColors.darkBlue,
       child: Column(
         children: [
           Container(
             height: 32,
             decoration: const BoxDecoration(
-              color: Color.fromRGBO(48, 71, 94, 1),
+              color: ThemeColors.lightBlue,
               border: Border(
-                bottom: BorderSide(
-                    width: 1.0, color: Color.fromRGBO(34, 40, 49, 1)),
+                bottom: BorderSide(width: 1.0, color: ThemeColors.darkBlue),
               ),
             ),
             child: GestureDetector(
@@ -165,7 +164,8 @@ class _PlaylistViewState extends State<PlaylistView> {
               ),
             ),
           ),
-          Expanded(child: MusicsView(playlist: this._currentPlaylist)),
+          Expanded(
+              child: MusicsView(playlistName: this._currentPlaylist?.title)),
         ],
       ),
     );

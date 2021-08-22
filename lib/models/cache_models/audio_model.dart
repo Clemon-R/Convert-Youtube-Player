@@ -11,6 +11,7 @@ class AudioModel {
   String youtubeUrl;
   String? thumbnailUrl;
 
+  @JsonKey(ignore: true)
   PlaylistModel? playlist;
 
   AudioModel(

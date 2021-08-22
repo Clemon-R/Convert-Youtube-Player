@@ -3,6 +3,7 @@ import 'dart:core';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:youtekmusic/constant/theme_colors.dart';
 import 'package:youtekmusic/models/cache_models/audio_model.dart';
 import 'package:youtekmusic/provider/services_provider.dart';
 import 'package:youtekmusic/services/player_service.dart';
@@ -100,7 +101,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Color.fromRGBO(48, 71, 94, 1),
+      color: ThemeColors.lightBlue,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

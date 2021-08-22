@@ -1,51 +1,60 @@
 import 'dart:io';
 
-import 'package:youtekmusic/constant/strings.dart';
-import 'package:youtekmusic/models/cache_models/playlist_model.dart';
-import 'package:youtekmusic/provider/services_provider.dart';
-import 'package:youtekmusic/services/cache_service.dart';
-import 'package:youtekmusic/services/player_service.dart';
-import 'package:youtekmusic/services/playlist_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:youtekmusic/constant/strings.dart';
+import 'package:youtekmusic/constant/theme_colors.dart';
+import 'package:youtekmusic/provider/services_provider.dart';
+import 'package:youtekmusic/services/player_service.dart';
+import 'package:youtekmusic/views/musics/bloc/musics_bloc.dart';
 
 class MusicsView extends StatefulWidget {
-  MusicsView({Key? key, this.playlist}) : super(key: key);
+  MusicsView({Key? key, this.playlistName}) : super(key: key);
 
-  final PlaylistModel? playlist;
+  final String? playlistName;
 
   @override
-  _MusicsViewState createState() => _MusicsViewState(this.playlist);
+  _MusicsViewState createState() => _MusicsViewState();
 }
 
 class _MusicsViewState extends State<MusicsView> {
-  final PlaylistService _playlistService = ServicesProvider.get();
-  final CacheService _cacheService = ServicesProvider.get();
-  final PlayerService _playerService = ServicesProvider.get();
-
-  PlaylistModel? _playlist;
-
-  _MusicsViewState(this._playlist);
+  late final MusicsBloc _bloc;
 
   @override
   Widget build(BuildContext context) {
-    var defaultPlaylist = this._playlist;
-    if (this._playlist == null)
-      defaultPlaylist =
-          _playlistService.getPlaylistByName(Strings.DEFAULT_PLAYLIST);
-    var musics = defaultPlaylist?.musics ?? Map();
+    return BlocProvider(
+      create: (context) {
+        this._bloc = MusicsBloc(
+            playlistName: this.widget.playlistName ?? Strings.DEFAULT_PLAYLIST);
+        return this._bloc;
+      },
+      child: BlocBuilder<MusicsBloc, MusicsState>(
+        builder: (context, state) {
+          if (state is MusicsInitiated)
+            return this._buildView(context, state);
+          else if (state is MusicsInitial)
+            return Container(); //TODO : Loading screen
+          else
+            return Container(); //TODO : Error screen
+        },
+      ),
+    );
+  }
+
+  Widget _buildView(BuildContext context, MusicsInitiated state) {
     return Container(
-        color: Color.fromRGBO(34, 40, 49, 1),
+        color: ThemeColors.darkBlue,
         child: Column(
           children: [
             Expanded(
               child: ListView.builder(
                   shrinkWrap: true,
-                  itemCount: musics.length,
+                  itemCount: state.playlist.musics.length,
                   itemBuilder: (context, index) {
-                    var audio = musics.values.elementAt(index);
+                    var audio = state.playlist.musics.values.elementAt(index);
                     return Container(
-                      color: Color.fromRGBO(48, 71, 94, 1),
+                      color: ThemeColors.lightBlue,
                       height: 60,
                       child: Row(
                         children: [
@@ -57,7 +66,9 @@ class _MusicsViewState extends State<MusicsView> {
                               audio.thumbnailUrl ?? "",
                             ),
                             onPressed: () {
-                              this._playerService.changeAudio(audio);
+                              this
+                                  ._bloc
+                                  .add(MusicsChangeCurrentMusic(audio: audio));
                             },
                           ),
                           Expanded(
@@ -84,7 +95,8 @@ class _MusicsViewState extends State<MusicsView> {
                                 ),
                               ),
                               onPressed: () {
-                                this._playerService.changeAudio(audio);
+                                this._bloc.add(
+                                    MusicsChangeCurrentMusic(audio: audio));
                               },
                             ),
                           ),
@@ -103,14 +115,7 @@ class _MusicsViewState extends State<MusicsView> {
                               color: Colors.white,
                             ),
                             onPressed: () async {
-                              var file = File(audio.pathFile);
-
-                              if (!await file.exists()) return;
-                              await file.delete();
-
-                              _playlistService.removeMusicToPlaylist(
-                                  defaultPlaylist!, audio.youtubeUrl);
-                              setState(() {});
+                              this._bloc.add(MusicsDeleteMusic(audio: audio));
                             },
                           ),
                         ],
