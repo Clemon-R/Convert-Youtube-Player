@@ -74,6 +74,7 @@ class _PlaylistViewState extends State<PlaylistView> {
                     firstAudio.thumbnailUrl ?? "",
                   ),
                   onPressed: () {
+                    this._bloc.add(PlaylistChangePlaylist(playlist: playlist));
                     //this._goToPlaylist(playlist);
                   },
                 ),
@@ -101,6 +102,9 @@ class _PlaylistViewState extends State<PlaylistView> {
                       ),
                     ),
                     onPressed: () {
+                      this
+                          ._bloc
+                          .add(PlaylistChangePlaylist(playlist: playlist));
                       //this._goToPlaylist(playlist);
                     },
                   ),
@@ -123,6 +127,8 @@ class _PlaylistViewState extends State<PlaylistView> {
   }
 
   Widget _currentPlaylistView(PlaylistInitiated state) {
+    if (state.currentPlaylist == null)
+      return Container(); // TODO : Error screen
     return Column(
       children: [
         Container(
@@ -135,6 +141,7 @@ class _PlaylistViewState extends State<PlaylistView> {
           ),
           child: GestureDetector(
             onTap: () {
+              this._bloc.add(PlaylistChangePlaylist(playlist: null));
               //this._goToPlaylistList();
             },
             child: Row(

@@ -14,6 +14,7 @@ class PlaylistBloc extends Bloc<PlaylistEvent, PlaylistState> {
   final _playlistService = ServicesProvider.get<PlaylistService>();
 
   List<PlaylistModel> _playlists = [];
+  PlaylistModel? _currentPlaylist;
 
   PlaylistBloc() : super(PlaylistInitial()) {
     this.add(PlaylistRefresh());
@@ -24,11 +25,15 @@ class PlaylistBloc extends Bloc<PlaylistEvent, PlaylistState> {
     PlaylistEvent event,
   ) async* {
     try {
+      var refresh = true;
       if (event is PlaylistRefresh) {
         this._playlists = this._playlistService.getAllPlaylists();
-        yield PlaylistInitiated(
-            playlists: this._playlists, currentPlaylist: null);
+      } else if (event is PlaylistChangePlaylist) {
+        this._currentPlaylist = event.playlist;
       }
+      if (refresh)
+        yield PlaylistInitiated(
+            playlists: this._playlists, currentPlaylist: this._currentPlaylist);
     } catch (e) {
       print(e);
       yield PlaylistError();
