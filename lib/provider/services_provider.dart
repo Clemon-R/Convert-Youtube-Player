@@ -1,4 +1,4 @@
-import 'package:async/async.dart';
+import 'package:get_it/get_it.dart';
 import 'package:youtekmusic/repositories/mp3_converter_repository.dart';
 import 'package:youtekmusic/repositories/youtube_repository.dart';
 import 'package:youtekmusic/services/base_service.dart';
@@ -7,7 +7,6 @@ import 'package:youtekmusic/services/http_service.dart';
 import 'package:youtekmusic/services/player_service.dart';
 import 'package:youtekmusic/services/playlist_service.dart';
 import 'package:youtekmusic/services/token_service.dart';
-import 'package:get_it/get_it.dart';
 
 class ServicesProvider {
   static const TAG = "ServicesProvider";

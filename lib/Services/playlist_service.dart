@@ -30,7 +30,7 @@ class PlaylistService extends BaseService {
     return data.musics[youtubeUrl];
   }
 
-  List<PlaylistModel?> getAllPlaylists() {
+  List<PlaylistModel> getAllPlaylists() {
     return _cacheService.content.playlists.values.toList(growable: false);
   }
 

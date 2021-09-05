@@ -4,19 +4,18 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:youtekmusic/models/rest_models/http_response_model.dart';
-import 'package:youtekmusic/provider/services_provider.dart';
-import 'package:youtekmusic/services/token_service.dart';
-import 'package:youtekmusic/enums/end_point_enum.dart';
-import 'package:youtekmusic/models/rest_models/irest_model.dart';
-import 'package:youtekmusic/models/rest_models/http_download_request_model.dart';
-import 'package:youtekmusic/models/rest_models/http_request_model.dart';
-import 'package:youtekmusic/services/base_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:youtekmusic/enums/urls_enum.dart';
+import 'package:youtekmusic/enums/end_point_enum.dart';
+import 'package:youtekmusic/models/rest_models/http_download_request_model.dart';
+import 'package:youtekmusic/models/rest_models/http_request_model.dart';
+import 'package:youtekmusic/models/rest_models/http_response_model.dart';
+import 'package:youtekmusic/models/rest_models/irest_model.dart';
+import 'package:youtekmusic/provider/services_provider.dart';
+import 'package:youtekmusic/services/base_service.dart';
+import 'package:youtekmusic/services/token_service.dart';
 
 class HttpService extends BaseService {
   static const String TAG = "HttpService";
